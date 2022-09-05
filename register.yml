@@ -62,3 +62,7 @@
               name: "{{ lookup('env', 'USER') }}"
               password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt ) }}"
 
+    - name: Print reminder
+      debug:
+         msg: 
+           - "Remember to add your newly provisioned hosts to DNS"
