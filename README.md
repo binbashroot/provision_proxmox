@@ -5,15 +5,20 @@ A project to deploy Red Hat subscribed virtual machines to a desired proxmox hos
 
 Requirements
 ------------
+ENVIRONMENT VARIABLE REQUIREMENTS:
+- export PROXMOX_PASSWORD='*******'
+- export PROXMOX_URL='https://proxmox.example.com:8006'
+- export PROXMOX_USER='jdoeo@pam'
+- export REDHAT_PASS='******'
+- export REDHAT_USER='jdoe@duck.com'
 
 PROXMOX REQUIREMENTS:
 - Working proxmox environment
+- A defined directory on proxmox server for qcow images 
 - A valid proxmox user/pass with admin rights via api access from Ansible controller
 - A valid proxmox user/pass with admin rights via ssh access from Ansible controller
-- A dedicated directory on proxmox server for qcow images 
 
 ANSIBLE CONTROLLER REQUIREMENTS:
-- The inventory/my.proxmox.yml file contains the proper user, host, and authentication method
 - The community.general collection is installed
 
 PLAYBOOK REQUIREMENTS

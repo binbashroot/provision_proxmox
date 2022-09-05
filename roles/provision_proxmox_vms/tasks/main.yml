@@ -16,13 +16,13 @@
                   cpu: "{{ cpu_type|default('host') }}"
                   hotplug: 'network,cpu,memory,disk'
                   ide:
-                      ide0: 'local-lvm:cloudinit,media=cdrom'
+                      ide0: "{{ cloud_init_storage|default('local-lvm:cloudinit,media=cdrom') }}"
                   ipconfig:
                       ipconfig0: "ip={{ virtual_machine['ip_with_cidr'] }},gw={{ virtual_machine['gateway'] }}"          
-                  memory: "{{ virtual_machine['ram'] }}"
+                  memory: "{{ virtual_machine['ram']|default('2048') }}"
                   name: "{{ virtual_machine['name'] }}.{{ domain }}"
                   net:
-                      net0: 'virtio,bridge=vmbr0,firewall=1'
+                      net0: "virtio,bridge=vmbr0,firewall=1{{ lookup('template','vlan.j2') }}"
                   nameservers: "{{ virtual_machine_nameservers }}"
                   node: "{{ proxmox_node }}"
                   numa_enabled: yes
@@ -32,16 +32,21 @@
                   tags: "{{ virtual_machine['tags']|list }}"
                   validate_certs: false
                   virtio:
-                      virtio0: 'local-lvm:2'
+                      virtio0: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('2') }}"
                   vcpus: "{{ virtual_machine['vcpus']|default('1') }}"
           loop: "{{ virtual_machines }}"
           loop_control:
               loop_var: virtual_machine
           register: __proxmox_results
 
+        - debug:
+            var: __proxmox_results['results']
+        
+        - meta: end_play 
+
         - name: Import the disk to proxmox
           ansible.builtin.shell: |
-                /usr/sbin/qm importdisk {{ vmid_info['vmid'] }} /opt/qcow_images/images/rhel-baseos-9.0-x86_64-kvm.qcow2 local-lvm 
+                /usr/sbin/qm importdisk {{ vmid_info['vmid'] }} {{ vmid_info['virtual_machine']['qcow_image'] }} {{ promox_storage|default('local-lvm') }}
                 /usr/sbin/qm set {{ vmid_info['vmid'] }} --scsi0 local-lvm:vm-{{ vmid_info['vmid'] }}-disk-1
                 /usr/sbin/qm set  {{ vmid_info['vmid'] }} --delete virtio0 
                 /usr/sbin/qm set {{ vmid_info['vmid'] }} --delete unused0
@@ -49,7 +54,6 @@
           delegate_to: "{{ proxmox_api_host }}"
           vars: 
               ansible_ssh_user: root    
-              ansible_ssh_private_key_file: /home/rromero/.ssh/id_proxmox
           loop: "{{ __proxmox_results['results'] }}"
           loop_control:
               loop_var:  vmid_info
@@ -61,10 +65,10 @@
                   api_host: "{{ proxmox_api_host }}"
                   api_password: "{{ proxmox_api_pass }}"
                   api_user: "{{ proxmox_api_user }}"
-                  boot: cnd
+                  boot: "{{ boot_order|default('cnd') }}"
                   bootdisk: scsi0
                   name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
-                  node: promox
+                  node: "{{ proxmox_node }}"
                   vmid: "{{ vmid_info['vmid'] }}"
                   validate_certs: false
                   update: yes
@@ -79,7 +83,7 @@
                   api_password: "{{ proxmox_api_pass }}"
                   api_user: "{{ proxmox_api_user }}"
                   name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
-                  node: promox    #fix
+                  node: "{{ proxmox_node }}"
                   state: started
           loop: "{{ __proxmox_results['results'] }}"
           loop_control:
@@ -99,7 +103,7 @@
                   api_password: "{{ proxmox_api_pass }}"
                   api_user: "{{ proxmox_api_user }}"
                   name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
-                  node: promox    #fix
+                  node: "{{ proxmox_node }}"
                   state: absent
           loop: "{{ __proxmox_results['results'] }}"
           loop_control:
@@ -132,7 +136,7 @@
                 api_password: "{{ proxmox_api_pass }}"
                 api_user: "{{ proxmox_api_user }}"
                 name: "{{ virtual_machine['name'] }}.{{ domain }}"
-                node: promox    #fix
+                node: "{{ proxmox_node }}"
                 state: stopped
                 force: yes
         loop: "{{ virtual_machines }}"
@@ -150,7 +154,7 @@
                 api_password: "{{ proxmox_api_pass }}"
                 api_user: "{{ proxmox_api_user }}"
                 name: "{{ virtual_machine['name'] }}.{{ domain }}"
-                node: promox    #fix
+                node: "{{ proxmox_node }}"
                 state: absent
         failed_when: false
         loop: "{{ virtual_machines }}"

@@ -3,12 +3,13 @@
 cloud_init_user: "{{ lookup('env','USER') }}"
 cloud_init_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_proxmox.pub') }}"
+cloud_init_public_key_path: "{{ lookup('env','USER') + '/.ssh/id_proxmox.pub' }}"
 
 domain: example.com
 
-proxmox_api_host: "proxmox.{{ domain }}"
-proxmox_api_pass: "{{ lookup('env','ADMIN_PROXMOX_PASSWORD') }}"
-proxmox_api_user: root@pam
+proxmox_api_host: "{{ lookup('env','PROXMOX_URL') }}"
+proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
 proxmox_node: promox  # fix this
 
 qcow_image_path: /opt/qcow_images/images
