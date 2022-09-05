@@ -19,8 +19,9 @@ Requirements
 - A valid proxmox user/pass with admin rights via api access from Ansible controller
 - A valid proxmox user/pass with admin rights via ssh access from Ansible controller
 
-##### ANSIBLE CONTROLLER REQUIREMENTS
+##### ANSIBLE REQUIREMENTS
 - The community.general collection is installed
+- Path for the private_key_file variable in the included ansible.cfg file is correct. 
 ##### PLAYBOOK REQUIREMENTS
 - A desired cloud-init user/pass for provisioning
 - A valid ssh key to be use for distributing to hosts via cloud-init
