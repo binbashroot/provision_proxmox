@@ -1,2 +1,2 @@
 ---
-ansible_ssh_user: rromero
+ansible_ssh_user: "{{ lookup('env','USER') }}"
