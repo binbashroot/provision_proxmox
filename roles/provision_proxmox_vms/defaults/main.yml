@@ -6,7 +6,7 @@ cloud_init_public_key: "{{ lookup('file','~/.ssh/id_proxmox.pub') }}"
 
 domain: example.com
 
-proxmox_api_host: proxmox.example.com
+proxmox_api_host: "proxmox.{{ domain }}"
 proxmox_api_pass: "{{ lookup('env','ADMIN_PROXMOX_PASSWORD') }}"
 proxmox_api_user: root@pam
 proxmox_node: promox  # fix this
@@ -32,6 +32,7 @@ virtual_machines:
      tags:
         - rhel
         - rhel9
+        - controller
 
    - name: servera
      ip_with_cidr: 192.168.1.102/24

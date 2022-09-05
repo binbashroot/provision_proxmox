@@ -3,7 +3,8 @@
   gather_facts: True
   become: True
   tasks:
-  - block:
+
+    - block:
 
         - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
           community.general.redhat_subscription:
@@ -33,8 +34,31 @@
           ansible.builtin.reboot:
           when: __reboot_required['rc']|int == 1           
 
-    when:
-        - lookup('env','REDHAT_USER') is defined 
-        - lookup('env','REDHAT_USER')|length > 0 
-        - lookup('env','REDHAT_PASS') is defined 
-        - lookup('env','REDHAT_PASS')|length > 0 
+        - name: Enable the AAP2 repo for the controller host
+          ansible.builtin.rhsm_repository:
+              name: ansible-automation-platform-2.2-for-rhel-9-x86_64-rpms
+              state: enabled
+          when: 
+             - "'controller' in inventory_hostname"
+             - ansible_distribution_major_version|int >= 9
+
+        - name: Install ansible-core on the controller
+          yum:
+            name: 
+              - ansible-core
+              - ansible-collection-redhat-rhel_mgmt
+          when: 
+             - "'controller' in inventory_hostname"
+             - ansible_distribution_major_version|int >= 9
+    
+      when:
+          - lookup('env','REDHAT_USER') is defined 
+          - lookup('env','REDHAT_USER')|length > 0 
+          - lookup('env','REDHAT_PASS') is defined 
+          - lookup('env','REDHAT_PASS')|length > 0 
+
+    - name: Change the remote user password to something random since we know ssh keys work
+      ansible.builtin.user:
+              name: "{{ lookup('env', 'USER') }}"
+              password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt ) }}"
+

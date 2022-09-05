@@ -4,15 +4,13 @@ want_facts: 'true'
 url: https://proxmox.example.com:8006
 user: rromero@pam
 keyed_groups:
- - key: proxmox_tags_parsed
-   separator: ""
-   prefix: group
+   - key: proxmox_tags_parsed
+     separator: ""
+#    prefix: group <-unneeded
 groups:
-  openshift: "'ocp' in (proxmox_tags_parsed|list)"
-  rhel9: "'rhel9' in (proxmox_tags_parsed|list)"
-  rhel8: "'rhel8' in (proxmox_tags_parsed|list)"
-  rhel7: "'rhel7' in (proxmox_tags_parsed|list)"
-  nameserver: "'nameserver' in (proxmox_tags_parsed|list)"
-  rhelservers: "'rhel' in (proxmox_tags_parsed|list)"
+    rhel9: "'rhel9' in (proxmox_tags_parsed|list)"
+    rhel8: "'rhel8' in (proxmox_tags_parsed|list)"
+    rhel7: "'rhel7' in (proxmox_tags_parsed|list)"
+    rhelservers: "'rhel' in (proxmox_tags_parsed|list)"
 compose:
-  ansible_port: 22
+    ansible_port: 22
