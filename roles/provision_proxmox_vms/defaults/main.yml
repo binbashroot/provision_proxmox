@@ -1,0 +1,84 @@
+---
+# defaults file for provision_proxmox_vms
+cloud_init_user: "{{ lookup('env','USER') }}"
+cloud_init_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+cloud_init_public_key: "{{ lookup('file','~/.ssh/id_proxmox.pub') }}"
+
+domain: example.com
+
+proxmox_api_host: proxmox.example.com
+proxmox_api_pass: "{{ lookup('env','ADMIN_PROXMOX_PASSWORD') }}"
+proxmox_api_user: root@pam
+proxmox_node: promox  # fix this
+
+qcow_image_path: /opt/qcow_images/images
+
+rhel7_image: rhel-server-7.9-x86_64-kvm.qcow2
+rhel8_image: rhel-8.6-x86_64-kvm.qcow2
+rhel9_image: rhel-baseos-9.0-x86_64-kvm.qcow2
+
+virtual_machine_nameservers:
+    - 192.168.1.100
+    - 192.168.1.200
+
+virtual_machines:
+
+   - name: controller
+     ip_with_cidr: 192.168.1.101/24
+     gateway: 192.168.1.1
+     cores: 1
+     ram: 2048     
+     qcow_image: "{{ qcow_image_path }}/{{ rhel9_image }}"
+     tags:
+        - rhel
+        - rhel9
+
+   - name: servera
+     ip_with_cidr: 192.168.1.102/24
+     gateway: 192.168.1.1
+     cores: 1
+     ram: 2048     
+     qcow_image: "{{ qcow_image_path }}/{{ rhel9_image }}"
+     tags:
+        - rhel
+        - rhel9
+
+   - name: serverb
+     ip_with_cidr: 192.168.1.103/24
+     gateway: 192.168.1.1
+     cores: 1
+     ram: 2048     
+     qcow_image: "{{ qcow_image_path }}/{{ rhel9_image }}"
+     tags:
+        - rhel
+        - rhel9
+
+   - name: serverc
+     ip_with_cidr: 192.168.1.104/24
+     gateway: 192.168.1.1
+     cores: 1
+     ram: 2048     
+     qcow_image: "{{ qcow_image_path }}/{{ rhel8_image }}"
+     tags:
+        - rhel
+        - rhel8
+
+   - name: serverd
+     ip_with_cidr: 192.168.1.105/24
+     gateway: 192.168.1.1
+     cores: 1
+     ram: 2048     
+     qcow_image: "{{ qcow_image_path }}/{{ rhel8_image }}"
+     tags:
+        - rhel
+        - rhel8
+
+   - name: servere
+     ip_with_cidr: 192.168.1.106/24
+     gateway: 192.168.1.1
+     cores: 1
+     ram: 2048     
+     qcow_image: "{{ qcow_image_path }}/{{ rhel7_image }}"
+     tags:
+        - rhel
+        - rhel7

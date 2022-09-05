@@ -1,0 +1,17 @@
+---
+- hosts: rhelservers
+  gather_facts: True
+  environment:
+  tasks:
+    - name: Update packages
+      become: True
+      yum:
+         name: '*'
+         state: latest
+
+    - name: install key packages
+      become: True
+      yum:
+         name:
+           - glibc-langpack-en
+      when: ansible_distribution_major_version|int >= 8

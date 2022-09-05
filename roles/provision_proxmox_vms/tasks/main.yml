@@ -1,0 +1,161 @@
+---
+
+- name: run the vm block
+  block: 
+
+        - name: Create new VM with one network interface, three virto hard disk, 4 cores, and 2 vcpus
+          community.general.proxmox_kvm:
+                  agent: 'enabled=1'
+                  api_user: "{{ proxmox_api_user }}"
+                  api_password: "{{ proxmox_api_pass }}"
+                  api_host: "{{ proxmox_api_host }}"
+                  bios: seabios
+                  ciuser: "{{ cloud_init_user }}"
+                  cipassword: "{{ cloud_init_pass }}"
+                  cores: "{{ virtual_machine['cores'] }}"
+                  cpu: "{{ cpu_type|default('host') }}"
+                  hotplug: 'network,cpu,memory,disk'
+                  ide:
+                      ide0: 'local-lvm:cloudinit,media=cdrom'
+                  ipconfig:
+                      ipconfig0: "ip={{ virtual_machine['ip_with_cidr'] }},gw={{ virtual_machine['gateway'] }}"          
+                  memory: "{{ virtual_machine['ram'] }}"
+                  name: "{{ virtual_machine['name'] }}.{{ domain }}"
+                  net:
+                      net0: 'virtio,bridge=vmbr0,firewall=1'
+                  nameservers: "{{ virtual_machine_nameservers }}"
+                  node: "{{ proxmox_node }}"
+                  numa_enabled: yes
+                  searchdomains: "{{ domain }}"
+                  scsihw: virtio-scsi-pci
+                  sshkeys: "{{ cloud_init_public_key }}"
+                  tags: "{{ virtual_machine['tags']|list }}"
+                  validate_certs: false
+                  virtio:
+                      virtio0: 'local-lvm:2'
+                  vcpus: "{{ virtual_machine['vcpus']|default('1') }}"
+          loop: "{{ virtual_machines }}"
+          loop_control:
+              loop_var: virtual_machine
+          register: __proxmox_results
+
+        - name: Import the disk to proxmox
+          ansible.builtin.shell: |
+                /usr/sbin/qm importdisk {{ vmid_info['vmid'] }} /opt/qcow_images/images/rhel-baseos-9.0-x86_64-kvm.qcow2 local-lvm 
+                /usr/sbin/qm set {{ vmid_info['vmid'] }} --scsi0 local-lvm:vm-{{ vmid_info['vmid'] }}-disk-1
+                /usr/sbin/qm set  {{ vmid_info['vmid'] }} --delete virtio0 
+                /usr/sbin/qm set {{ vmid_info['vmid'] }} --delete unused0
+          failed_when: false
+          delegate_to: "{{ proxmox_api_host }}"
+          vars: 
+              ansible_ssh_user: root    
+              ansible_ssh_private_key_file: /home/rromero/.ssh/id_proxmox
+          loop: "{{ __proxmox_results['results'] }}"
+          loop_control:
+              loop_var:  vmid_info
+          when: __proxmox_results is changed
+
+        - name: Update VM so it will boot from scsi0
+          community.general.proxmox_kvm:
+                  agent: 'enabled=1'
+                  api_host: "{{ proxmox_api_host }}"
+                  api_password: "{{ proxmox_api_pass }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  boot: cnd
+                  bootdisk: scsi0
+                  name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
+                  node: promox
+                  vmid: "{{ vmid_info['vmid'] }}"
+                  validate_certs: false
+                  update: yes
+          loop: "{{ __proxmox_results['results'] }}"
+          loop_control:
+              loop_var:  vmid_info
+          when: __proxmox_results is changed
+
+        - name: Start VM
+          community.general.proxmox_kvm:
+                  api_host: "{{ proxmox_api_host }}"
+                  api_password: "{{ proxmox_api_pass }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
+                  node: promox    #fix
+                  state: started
+          loop: "{{ __proxmox_results['results'] }}"
+          loop_control:
+                loop_var: vmid_info
+          when: __proxmox_results is changed
+
+        - name: Set a fact that it is ok to register hosts if we made it this far
+          ansible.builtin.set_fact:
+                 register2redhat: True
+          when: __proxmox_results is changed
+          
+  rescue: 
+
+        - name: Delete VM
+          community.general.proxmox_kvm:
+                  api_host: "{{ proxmox_api_host }}"
+                  api_password: "{{ proxmox_api_pass }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
+                  node: promox    #fix
+                  state: absent
+          loop: "{{ __proxmox_results['results'] }}"
+          loop_control:
+                loop_var: vmid_info
+
+  tags: 
+     - provision           
+
+- name: Cleanup when needed
+  block:
+
+      - name: Unsubscribe from Red Hat subscriptions
+        community.general.redhat_subscription:
+              state: absent
+              username: "{{ lookup('env','REDHAT_USER') }}"
+              password: "{{ lookup('env','REDHAT_PASS') }}"
+        loop: "{{ virtual_machines }}"
+        loop_control:
+            loop_var: virtual_machine
+        vars: 
+             ansible_user: "{{ lookup('env','USER') }}"
+             ansible_ssh_private_key_file: "{{ lookup('env','HOME') }}/.ssh/id_rsa_proxmox"
+        delegate_to: "{{ (virtual_machine['ip_with_cidr']).split('/')[0]|trim }}"
+        failed_when: false
+        become: true
+
+      - name: Force stop VM
+        community.general.proxmox_kvm:
+                api_host: "{{ proxmox_api_host }}"
+                api_password: "{{ proxmox_api_pass }}"
+                api_user: "{{ proxmox_api_user }}"
+                name: "{{ virtual_machine['name'] }}.{{ domain }}"
+                node: promox    #fix
+                state: stopped
+                force: yes
+        loop: "{{ virtual_machines }}"
+        loop_control:
+            loop_var: virtual_machine
+        failed_when: false
+
+      - name: Pause for 5 seconds so VM deletion task can succeed
+        ansible.builtin.pause:
+            seconds: 5
+
+      - name: Delete VM
+        community.general.proxmox_kvm:
+                api_host: "{{ proxmox_api_host }}"
+                api_password: "{{ proxmox_api_pass }}"
+                api_user: "{{ proxmox_api_user }}"
+                name: "{{ virtual_machine['name'] }}.{{ domain }}"
+                node: promox    #fix
+                state: absent
+        failed_when: false
+        loop: "{{ virtual_machines }}"
+        loop_control:
+            loop_var: virtual_machine
+
+  tags:
+    - never

@@ -1,0 +1,39 @@
+---
+- hosts: rhelservers
+  gather_facts: True
+  become: True
+  tasks:
+  - block:
+
+        - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
+          community.general.redhat_subscription:
+              state: present
+              username: "{{ lookup('env','REDHAT_USER') }}"
+              password: "{{ lookup('env','REDHAT_PASS') }}"
+              auto_attach: true
+
+        - name: install packages for language locale
+          yum:
+            name:
+              - glibc-langpack-en
+          when:
+              - ansible_distribution_major_version|int >= 8
+
+        - name: Update packages
+          yum:
+            name: '*'
+            state: latest
+
+        - name: Check if server needs rebooting
+          ansible.builtin.shell: /usr/bin/needs-restarting -r
+          register: __reboot_required
+
+        - name: Reboot server
+          ansible.builtin.reboot:
+          when: __reboot_required['rc']|int == 1           
+
+    when:
+        - lookup('env','REDHAT_USER') is defined 
+        - lookup('env','REDHAT_USER')|length > 0 
+        - lookup('env','REDHAT_PASS') is defined 
+        - lookup('env','REDHAT_PASS')|length > 0 
