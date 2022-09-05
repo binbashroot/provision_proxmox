@@ -1,5 +1,5 @@
 ---
-- hosts: rhelservers
+- hosts: newrhelservers
   gather_facts: True
   become: True
   tasks:
@@ -26,6 +26,7 @@
 
         - name: Check if server needs rebooting
           ansible.builtin.shell: /usr/bin/needs-restarting -r
+          failed_when: false
           register: __reboot_required
 
         - name: Reboot server
