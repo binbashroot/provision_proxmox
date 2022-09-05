@@ -48,3 +48,5 @@
   when: 
      - groups['newrhelservers'] is defined 
      - groups['newrhelservers']|length > 0
+
+    
