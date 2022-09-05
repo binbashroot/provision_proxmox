@@ -44,7 +44,6 @@
        pause:
            seconds: 15
 
-
 - ansible.builtin.import_playbook: register.yml
   when: 
      - groups['newrhelservers'] is defined 
