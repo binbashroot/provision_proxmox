@@ -1,3 +1,4 @@
+---
 # PROPER USE OF THIS PLUGIN REQURES THE FOLLOWING ENV VARS ARE SET BEFORE USING 
 # PROXMOX_PASSWORD
 # PROXMOX_URL
@@ -8,7 +9,11 @@
 # PROXMOX_TOKEN_SECRET
 ###########################################
 plugin: community.general.proxmox
-validate_certs: 'false'
+validate_certs: false
+password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+user: "{{ lookup('env','PROXMOX_USER') }}"
+url: "https://{{ lookup('env','PROXMOX_URL') }}:8006"
+want_proxmox_nodes_ansible_host: false
 want_facts: 'true'
 keyed_groups:
    - key: proxmox_tags_parsed
