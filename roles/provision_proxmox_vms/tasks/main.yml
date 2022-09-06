@@ -6,10 +6,10 @@
         - name: Create new VM with one network interface, three virto hard disk, 4 cores, and 2 vcpus
           community.general.proxmox_kvm:
                   agent: 'enabled=1'
-                  bios: seabios
-                  api_host: "{{ lookup('env','PROXMOX_URL') }}"
+                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                   api_user: "{{ lookup('env','PROXMOX_USER') }}"
                   api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+                  bios: "{{ virtual_machine{'bios']|default('seabios') }}"
                   ciuser: "{{ cloud_init_user }}"
                   cipassword: "{{ cloud_init_pass }}"
                   cores: "{{ virtual_machine['cores'] }}"
@@ -25,7 +25,7 @@
                       net0: "virtio,bridge=vmbr0,firewall=1{{ lookup('template','vlan.j2') }}"
                   nameservers: "{{ virtual_machine_nameservers }}"
                   node: "{{ proxmox_node }}"
-                  numa_enabled: yes
+                  numa_enabled: "{{ virtual_machine['numa']|default('yes') }}"
                   searchdomains: "{{ domain }}"
                   scsihw: virtio-scsi-pci
                   sshkeys: "{{ cloud_init_public_key }}"
@@ -45,11 +45,11 @@
         - name: Import the disk to proxmox
           ansible.builtin.shell: |
                 /usr/sbin/qm importdisk {{ vmid_info['vmid'] }} {{ vmid_info['virtual_machine']['qcow_image'] }} {{ promox_storage|default('local-lvm') }}
-                /usr/sbin/qm set {{ vmid_info['vmid'] }} --scsi0 {{ proxmox_storage|default('local-lvm') }}:vm-{{ vmid_info['vmid'] }}-disk-1
+                /usr/sbin/qm set {{ vmid_info['vmid'] }} --{{ bootdisk|default('scsi') }}0 {{ proxmox_storage|default('local-lvm') }}:vm-{{ vmid_info['vmid'] }}-disk-1
                 /usr/sbin/qm set  {{ vmid_info['vmid'] }} --delete virtio0 
                 /usr/sbin/qm set {{ vmid_info['vmid'] }} --delete unused0
           failed_when: false
-          delegate_to: "{{ proxmox_api_host }}"
+          delegate_to: "{{ lookup('env','PROXMOX_HOST') }}"
           vars: 
               ansible_ssh_user: root    
           loop: "{{ __proxmox_results['results'] }}"
@@ -60,11 +60,11 @@
         - name: Update VM so it will boot from scsi0
           community.general.proxmox_kvm:
                   agent: 'enabled=1'
-                  api_host: "{{ lookup('env','PROXMOX_URL') }}"
+                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                   api_user: "{{ lookup('env','PROXMOX_USER') }}"
                   api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
                   boot: "{{ boot_order|default('cnd') }}"
-                  bootdisk: scsi0
+                  bootdisk: "{{ bootdisk|default('scsi') }}0"
                   name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   vmid: "{{ vmid_info['vmid'] }}"
@@ -77,7 +77,7 @@
 
         - name: Start VM
           community.general.proxmox_kvm:
-                  api_host: "{{ lookup('env','PROXMOX_URL') }}"
+                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                   api_user: "{{ lookup('env','PROXMOX_USER') }}"
                   api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
                   name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
@@ -97,7 +97,7 @@
 
         - name: Delete VM
           community.general.proxmox_kvm:
-                  api_host: "{{ lookup('env','PROXMOX_URL') }}"
+                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                   api_user: "{{ lookup('env','PROXMOX_USER') }}"
                   api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
                   name: "{{ vmid_info['virtual_machine']['name'] }}.{{ domain }}"
@@ -122,8 +122,8 @@
         loop_control:
             loop_var: virtual_machine
         vars: 
-             ansible_user: "{{ lookup('env','USER') }}"
-             ansible_ssh_private_key_file: "{{ lookup('env','HOME') }}/.ssh/id_rsa_proxmox"
+             ansible_user: "{{ cloud_init_user }}"
+             ansible_ssh_private_key_file: "{{ cloud_init_public_key }}"
         delegate_to: "{{ (virtual_machine['ip_with_cidr']).split('/')[0]|trim }}"
         become: true
         failed_when: false
@@ -132,7 +132,7 @@
 
       - name: Force stop VM
         community.general.proxmox_kvm:
-                api_host: "{{ lookup('env','PROXMOX_URL') }}"
+                api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                 api_user: "{{ lookup('env','PROXMOX_USER') }}"
                 api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
                 name: "{{ virtual_machine['name'] }}.{{ domain }}"
@@ -150,7 +150,7 @@
 
       - name: Delete VM
         community.general.proxmox_kvm:
-                api_host: "{{ lookup('env','PROXMOX_URL') }}"
+                api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                 api_user: "{{ lookup('env','PROXMOX_USER') }}"
                 api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
                 name: "{{ virtual_machine['name'] }}.{{ domain }}"
