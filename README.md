@@ -26,6 +26,9 @@ Requirements
 - export PROXMOX_USER='jdoeo@pam'
 - export REDHAT_PASS='******'
 - export REDHAT_USER='jdoe@duck.com'  
+##### PYTHON REQUIREMENTS
+- proxmoxer==1.3.1
+- requests==2.28.1
 
 ##### PROXMOX REQUIREMENTS
 - Working proxmox environment
