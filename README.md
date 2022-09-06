@@ -1,17 +1,34 @@
-Provision Promox VMs
+Provision Proxmox VMs
 =========
 
-A project to deploy Red Hat subscribed virtual machines to a desired proxmox host via Ansible
+A project to deploy Red Hat subscribed virtual machines to a desired proxmox host via Ansible  
+#### **How it works:**
+A cloud-init ready base vm with NO OS using a 2g ide "boot" disk is created.  
+Import a KVM cloud image as a new disk to the vm.  
+Set newly imported disk as the vm boot device.  
+Remove and delete the 2G ide "boot" disk.
+Set KVM cloud disk as the "boot" disk.  
+Start vm  
+Attach a Red Hat subscription  
+Install Glibc Language packages for RHEL8 and higher  
+Patch vm and reboot  
+Enable the AAP2 repo for any VM tagged with "controller"  
+Install ansible-core for any VM tagged with "controller"  
+Change the "{{ cloud_init_user }}" password to a random UNKNOWN password   
+Print a reminder to add the hosts to DNS  
 
 Requirements
 ------------
 ---
 ##### ENVIRONMENT VARIABLE REQUIREMENTS
 - export PROXMOX_PASSWORD='*******'
-- export PROXMOX_URL='proxmox.example.com'
+- export PROXMOX_HOST='proxmox.example.com'
 - export PROXMOX_USER='jdoeo@pam'
 - export REDHAT_PASS='******'
 - export REDHAT_USER='jdoe@duck.com'  
+##### PYTHON REQUIREMENTS
+- proxmoxer==1.3.1
+- requests==2.28.1
 
 ##### PROXMOX REQUIREMENTS
 - Working proxmox environment

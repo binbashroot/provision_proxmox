@@ -2,3 +2,6 @@ junk/
 .vscode/
 tests/
 test.yml
+.venv/
+.idea
+images/

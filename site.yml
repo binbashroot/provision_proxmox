@@ -7,8 +7,12 @@
      - name: Assert that vars required for lookup exist
        ansible.builtin.assert:
           that:
+            - cloud_init_user is defined
             - cloud_init_pass is defined
-            - proxmox_api_pass is defined
+            - cloud_init_public_key is defined
+            - lookup('env','PROXMOX_HOST') is defined 
+            - lookup('env','PROXMOX_USER') is defined 
+            - lookup('env','PROXMOX_PASSWORD') is defined 
             - lookup('env','REDHAT_USER') is defined 
             - lookup('env','REDHAT_PASS') is defined 
  
@@ -27,7 +31,7 @@
               name: "{{ vm['name'] }}.{{ domain }}"
               groups: newrhelservers
               ansible_user: "{{ cloud_init_user }}"
-              ansible_ssh_private_key_file: "{{ cloud_init_public_key_path }}"
+              ansible_ssh_private_key_file: "{{ cloud_init_public_key }}"
               ansible_host: "{{ vm['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
               provision_tags: "{{ vm['tags'] }}"
        loop: "{{ virtual_machines }}"
