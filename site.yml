@@ -27,7 +27,7 @@
               name: "{{ virtual_machine['name'] }}.{{ domain }}"
               groups: newrhelservers
               ansible_user: "{{ cloud_init_user }}"
-              ansible_ssh_private_key_file: "{{ lookup('env','HOME') }}/.ssh/id_rsa_proxmox"
+              ansible_ssh_private_key_file: "{{ cloud_init_public_key_path }}"
               ansible_host: "{{ virtual_machine['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
        loop: "{{ virtual_machines }}"
        loop_control:

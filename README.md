@@ -8,7 +8,7 @@ Requirements
 ---
 ##### ENVIRONMENT VARIABLE REQUIREMENTS
 - export PROXMOX_PASSWORD='*******'
-- export PROXMOX_URL='https://proxmox.example.com:8006'
+- export PROXMOX_URL='proxmox.example.com'
 - export PROXMOX_USER='jdoeo@pam'
 - export REDHAT_PASS='******'
 - export REDHAT_USER='jdoe@duck.com'  
@@ -21,6 +21,7 @@ Requirements
 
 ##### ANSIBLE REQUIREMENTS
 - The community.general collection is installed
+- The ansible.posix collection is installed
 - Path for the private_key_file variable in the included ansible.cfg file is correct. 
 ##### PLAYBOOK REQUIREMENTS
 - A desired cloud-init user/pass for provisioning
@@ -39,10 +40,15 @@ Example Syntax
 ```
     ansible-playbook site.yml
 ```
-### To deprovision virtual machines
+### To unsubscribe and deprovision virtual machines
+```
+    ansible-playbook site.yml --tags never -e clean=true
+```
+### To deprovision virtual machines 
 ```
     ansible-playbook site.yml --tags never 
 ```
+---
 ---
 Example Playbook 
 ----------------
