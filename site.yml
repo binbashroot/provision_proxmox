@@ -31,7 +31,7 @@
               name: "{{ vm['name'] }}.{{ domain }}"
               groups: newrhelservers
               ansible_user: "{{ cloud_init_user }}"
-              ansible_ssh_private_key_file: "{{ cloud_init_public_key_path }}"
+              ansible_ssh_private_key_file: "{{ cloud_init_public_key }}"
               ansible_host: "{{ vm['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
               provision_tags: "{{ vm['tags'] }}"
        loop: "{{ virtual_machines }}"
