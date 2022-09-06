@@ -8,14 +8,10 @@
        ansible.builtin.assert:
           that:
             - cloud_init_pass is defined
-            - cloud_init_pass|length > 0
             - proxmox_api_pass is defined
-            - proxmox_api_pass|length > 0
             - lookup('env','REDHAT_USER') is defined 
-            - lookup('env','REDHAT_USER')|length > 0 
             - lookup('env','REDHAT_PASS') is defined 
-            - lookup('env','REDHAT_PASS')|length > 0 
-
+ 
      - name: Ensure netaddr python module is installed
        ansible.builtin.pip:
            name: netaddr
@@ -28,21 +24,22 @@
 
      - name: Add host to dynamic inventory for a future run
        ansible.builtin.add_host:
-              name: "{{ virtual_machine['name'] }}.{{ domain }}"
+              name: "{{ vm['name'] }}.{{ domain }}"
               groups: newrhelservers
-              ansible_user: "{{ lookup('env','USER') }}"
-              ansible_ssh_private_key_file: "{{ lookup('env','HOME') }}/.ssh/id_rsa_proxmox"
-              ansible_host: "{{ virtual_machine['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
+              ansible_user: "{{ cloud_init_user }}"
+              ansible_ssh_private_key_file: "{{ cloud_init_public_key_path }}"
+              ansible_host: "{{ vm['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
+              provision_tags: "{{ vm['tags'] }}"
        loop: "{{ virtual_machines }}"
        loop_control:
-              loop_var: virtual_machine
+              loop_var: vm
        when: 
           - register2redhat is defined
           - register2redhat|bool
        
      - name: wait to ensure hosts are actually running beyond just having an IP
        pause:
-           seconds: 15
+           seconds: 30
 
 - ansible.builtin.import_playbook: register.yml
   when: 

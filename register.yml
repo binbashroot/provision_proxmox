@@ -39,7 +39,7 @@
               name: ansible-automation-platform-2.2-for-rhel-9-x86_64-rpms
               state: enabled
           when: 
-             - "'controller' in inventory_hostname"
+             - "'controller' in provision_tags"
              - ansible_distribution_major_version|int >= 9
 
         - name: Install ansible-core on the controller
@@ -48,7 +48,7 @@
               - ansible-core
               - ansible-collection-redhat-rhel_mgmt
           when: 
-             - "'controller' in inventory_hostname"
+             - "'controller' in provision_tags"
              - ansible_distribution_major_version|int >= 9
     
       when:
@@ -60,5 +60,10 @@
     - name: Change the remote user password to something random since we know ssh keys work
       ansible.builtin.user:
               name: "{{ lookup('env', 'USER') }}"
-              password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt ) }}"
+              password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
 
+    - name: Print reminder
+      debug:
+         msg: 
+           - "Remember to add your newly provisioned hosts to DNS"
+      run_once: True

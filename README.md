@@ -5,18 +5,25 @@ A project to deploy Red Hat subscribed virtual machines to a desired proxmox hos
 
 Requirements
 ------------
+---
+##### ENVIRONMENT VARIABLE REQUIREMENTS
+- export PROXMOX_PASSWORD='*******'
+- export PROXMOX_URL='proxmox.example.com'
+- export PROXMOX_USER='jdoeo@pam'
+- export REDHAT_PASS='******'
+- export REDHAT_USER='jdoe@duck.com'  
 
-PROXMOX REQUIREMENTS:
+##### PROXMOX REQUIREMENTS
 - Working proxmox environment
+- A defined directory on proxmox server for qcow images 
 - A valid proxmox user/pass with admin rights via api access from Ansible controller
 - A valid proxmox user/pass with admin rights via ssh access from Ansible controller
-- A dedicated directory on proxmox server for qcow images 
 
-ANSIBLE CONTROLLER REQUIREMENTS:
-- The inventory/my.proxmox.yml file contains the proper user, host, and authentication method
+##### ANSIBLE REQUIREMENTS
 - The community.general collection is installed
-
-PLAYBOOK REQUIREMENTS
+- The ansible.posix collection is installed
+- Path for the private_key_file variable in the included ansible.cfg file is correct. 
+##### PLAYBOOK REQUIREMENTS
 - A desired cloud-init user/pass for provisioning
 - A valid ssh key to be use for distributing to hosts via cloud-init
 - A valid Red Hat account with access to subscriptions
@@ -28,18 +35,21 @@ None
 
 Example Syntax 
 ----------------
+### To provision virtual machines:
 
 ```
-To provision virtual machines:
-
     ansible-playbook site.yml
-
-To deprovision virtual machines:
-
-    ansible-playbook site.yml --tags never 
-
 ```
-
+### To unsubscribe and deprovision virtual machines
+```
+    ansible-playbook site.yml --tags never -e clean=true
+```
+### To deprovision virtual machines 
+```
+    ansible-playbook site.yml --tags never 
+```
+---
+---
 Example Playbook 
 ----------------
 
@@ -56,8 +66,6 @@ Example Playbook
            extra_args: --user 
   roles:
      - provision_proxmox_vms
-
-
 ```
 
 License

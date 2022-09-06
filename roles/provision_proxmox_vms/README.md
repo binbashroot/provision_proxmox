@@ -23,10 +23,12 @@ Role Variables
 | cloud_init_pass | lookup | lookup('env','PROXMOX_PASSWORD') |
 | cloud_init_public_key | lookup | lookup('file','~/.ssh/id_proxmox.pub') |
 | domain | string | example.com |
-| proxmox_api_host | string | proxmox.example.com |
-| proxmox_api_pass | lookup |lookup('env','ADMIN_PROXMOX_PASSWORD') |
-| proxmox_api_user | string | root@pam | 
+| proxmox_api_host | string | lookup('env','PROXMOX_URL') |
+| proxmox_api_pass | lookup | lookup('env','PROXMOX_PASSWORD') |
+| proxmox_api_user | string | lookup('env','PROXMOX_USER') | 
 | proxmox_node | string | promox  (will fix) |
+| pmsize | string | 2 |
+| proxmox_storage| string | local-lvm |
 | qcow_image_path | string | /opt/qcow_images/images |
 | rhel7_image | string | rhel-server-7.9-x86_64-kvm.qcow2 |
 | rhel8_image | string | rhel-8.6-x86_64-kvm.qcow2 |
