@@ -9,7 +9,7 @@
                   api_host: "{{ lookup('env','PROXMOX_HOST') }}"
                   api_user: "{{ lookup('env','PROXMOX_USER') }}"
                   api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
-                  bios: "{{ virtual_machine{'bios']|default('seabios') }}"
+                  bios: "{{ virtual_machine['bios']|default('seabios') }}"
                   ciuser: "{{ cloud_init_user }}"
                   cipassword: "{{ cloud_init_pass }}"
                   cores: "{{ virtual_machine['cores'] }}"
