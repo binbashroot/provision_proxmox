@@ -39,7 +39,7 @@
               name: ansible-automation-platform-2.2-for-rhel-9-x86_64-rpms
               state: enabled
           when: 
-             - "'controller' in inventory_hostname"
+             - "'controller' in provision_tags"
              - ansible_distribution_major_version|int >= 9
 
         - name: Install ansible-core on the controller
@@ -48,7 +48,7 @@
               - ansible-core
               - ansible-collection-redhat-rhel_mgmt
           when: 
-             - "'controller' in inventory_hostname"
+             - "'controller' in provision_tags"
              - ansible_distribution_major_version|int >= 9
     
       when:
@@ -66,3 +66,4 @@
       debug:
          msg: 
            - "Remember to add your newly provisioned hosts to DNS"
+      run_once: True
