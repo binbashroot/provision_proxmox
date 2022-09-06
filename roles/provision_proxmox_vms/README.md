@@ -23,7 +23,7 @@ Role Variables
 | cloud_init_pass | lookup | lookup('env','PROXMOX_PASSWORD') |
 | cloud_init_public_key | lookup | lookup('file','~/.ssh/id_proxmox.pub') |
 | domain | string | example.com |
-| proxmox_api_host | string | lookup('env','PROXMOX_URL') |
+| proxmox_api_host | string | lookup('env','PROXMOX_HOST') |
 | proxmox_api_pass | lookup | lookup('env','PROXMOX_PASSWORD') |
 | proxmox_api_user | string | lookup('env','PROXMOX_USER') | 
 | proxmox_node | string | promox  (will fix) |

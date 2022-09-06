@@ -3,7 +3,6 @@
 cloud_init_user: "{{ lookup('env','USER') }}"
 cloud_init_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_proxmox.pub') }}"
-cloud_init_public_key_path: "{{ lookup('env','USER') + '/.ssh/id_proxmox.pub' }}"
 
 domain: example.com
 
