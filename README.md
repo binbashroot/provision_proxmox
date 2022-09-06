@@ -1,4 +1,4 @@
-Provision Promox VMs
+Provision Proxmox VMs
 =========
 
 A project to deploy Red Hat subscribed virtual machines to a desired proxmox host via Ansible  
