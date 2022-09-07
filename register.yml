@@ -52,10 +52,10 @@
              - ansible_distribution_major_version|int >= 9
     
       when:
-          - "{{ redhat_user }}" is defined 
-          - "{{ redhat_user }}"|length > 0 
-          - "{{ redhat_password }}" is defined 
-          - "{{ redhat_password }}"|length > 0 
+          - redhat_user is defined 
+          - redhat_user | length > 0 
+          - redhat_password is defined 
+          - redhat_password | length > 0 
 
     - name: Change the remote user password to something random since we know ssh keys work
       ansible.builtin.user:
