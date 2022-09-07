@@ -24,8 +24,6 @@ Requirements
 - export PROXMOX_PASSWORD='*******'
 - export PROXMOX_HOST='proxmox.example.com'
 - export PROXMOX_USER='jdoeo@pam'
-- export REDHAT_PASS='******'
-- export REDHAT_USER='jdoe@duck.com'  
 ##### PYTHON REQUIREMENTS
 - proxmoxer==1.3.1
 - requests==2.28.1
