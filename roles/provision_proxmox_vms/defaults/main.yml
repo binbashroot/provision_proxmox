@@ -1,14 +1,17 @@
 ---
 # defaults file for provision_proxmox_vms
 cloud_init_user: "{{ lookup('env','USER') }}"
-cloud_init_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+cloud_init_pass: "{{ proxmox_api_pass }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_proxmox.pub') }}"
 
 domain: example.com
 
-proxmox_api_host: "{{ lookup('env','PROXMOX_URL') }}"
-proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+proxmox_api_host: "{{ lookup('env','PROXMOX_HOST') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
+proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+redhat_user: "{{ lookup('env','REDHAT_USER') }}"
+redhat_password: "{{ lookup('env','REDHAT_PASS') }}"
+
 proxmox_node: promox  # fix this
 
 qcow_image_path: /opt/qcow_images/images

@@ -10,11 +10,11 @@
             - cloud_init_user is defined
             - cloud_init_pass is defined
             - cloud_init_public_key is defined
-            - lookup('env','PROXMOX_HOST') is defined 
-            - lookup('env','PROXMOX_USER') is defined 
-            - lookup('env','PROXMOX_PASSWORD') is defined 
-            - lookup('env','REDHAT_USER') is defined 
-            - lookup('env','REDHAT_PASS') is defined 
+            - proxmox_api_host is defined 
+            - proxmox_api_user is defined 
+            - proxmox_api_pass is defined 
+            - redhat_user is defined 
+            - redhat_password is defined 
  
      - name: Ensure netaddr python module is installed
        ansible.builtin.pip:

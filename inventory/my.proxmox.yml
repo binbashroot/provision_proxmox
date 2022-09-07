@@ -1,9 +1,9 @@
 ---
 plugin: community.general.proxmox
 validate_certs: false
-password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
-user: "{{ lookup('env','PROXMOX_USER') }}"
-url: "https://{{ lookup('env','PROXMOX_HOST') }}:8006"
+password: "{{ proxmox_api_pass }}"
+user: "{{ proxmox_api_user }}"
+url: "https://{{ proxmox_api_host }}:8006"
 want_proxmox_nodes_ansible_host: false
 want_facts: 'true'
 keyed_groups:
