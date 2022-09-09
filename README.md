@@ -17,9 +17,39 @@ Install ansible-core for any VM tagged with "controller"
 Change the "{{ cloud_init_user }}" password to a random UNKNOWN password   
 Print a reminder to add the hosts to DNS  
 
+---
+Quick Start Instructions
+------------
+```
+On Proxmox Server
+$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_proxmox_admin
+$ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
+$ ssh -i ~/.ssh/id_proxmox_admin YOURADMINUSER@proxmox.example.com
+# pvesm add dir qcow_images --path /opt/qcow_images
+# exit
+
+Download RHEL QCOW images from access.redhat.com and upload them to your Proxmox server.
+Be sure the images are resided in the /opt/qcow_images/images dir
+Take Note of the file names you downloaded
+
+$ git clone https://github.com/binbashroot/provision_promox.git
+$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_cloud_init
+$ set +o history
+$ export PROXMOX_PASSWORD='*******'
+$ export PROXMOX_HOST='proxmox.example.com'
+$ export PROXMOX_USER='jdoeo@pam'
+$ export REDHAT_PASS='******'
+$ export REDHAT_USER='jdoe@duck.com'
+$ cd provision_proxmox
+$ vi roles/provision_proxmox_vms/defaults/main.yml
+Edit the defaults/main.yml so it has your desired settings
+
+
+```
+---
+
 Requirements
 ------------
----
 ##### ENVIRONMENT VARIABLE REQUIREMENTS
 - export PROXMOX_PASSWORD='*******'
 - export PROXMOX_HOST='proxmox.example.com'
@@ -66,7 +96,6 @@ Example Syntax
     ansible-playbook site.yml --tags never 
 ```
 ---
----
 Example Playbook 
 ----------------
 
@@ -95,5 +124,4 @@ Author Information
 
 Randy Romero  
 binbashroot@duck.com
-
 
