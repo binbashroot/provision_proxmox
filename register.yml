@@ -59,7 +59,7 @@
 
     - name: Change the remote user password to something random since we know ssh keys work
       ansible.builtin.user:
-              name: "{{ lookup('env', 'USER') }}"
+              name: "{{ cloud_init_user  }}"
               password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
 
     - name: Print reminder

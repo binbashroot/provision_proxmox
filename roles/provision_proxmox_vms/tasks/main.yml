@@ -39,9 +39,6 @@
               loop_var: virtual_machine
           register: __proxmox_results
 
-        # - debug:
-        #     var: __proxmox_results['results']
-        
         - name: Import the disk to proxmox
           ansible.builtin.shell: |
                 /usr/sbin/qm importdisk {{ vmid_info['vmid'] }} {{ vmid_info['virtual_machine']['qcow_image'] }} {{ promox_storage|default('local-lvm') }}
@@ -51,7 +48,8 @@
           failed_when: false
           delegate_to: "{{ lookup('env','PROXMOX_HOST') }}"
           vars: 
-              ansible_ssh_user: root    
+              ansible_ssh_user:  "{{ proxmox_admin_ssh_user }}"   
+              ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
           loop: "{{ __proxmox_results['results'] }}"
           loop_control:
               loop_var:  vmid_info
@@ -122,8 +120,8 @@
         loop_control:
             loop_var: virtual_machine
         vars: 
-             ansible_user: "{{ cloud_init_user }}"
-             ansible_ssh_private_key_file: "{{ cloud_init_public_key }}"
+             ansible_ssh_user: "{{ cloud_init_user }}"
+             ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
         delegate_to: "{{ (virtual_machine['ip_with_cidr']).split('/')[0]|trim }}"
         become: true
         failed_when: false
