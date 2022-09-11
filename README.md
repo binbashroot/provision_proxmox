@@ -46,10 +46,9 @@ $ export PROXMOX_USER='jdoeo@pam'
 $ export REDHAT_PASS='******'
 $ export REDHAT_USER='jdoe@duck.com'
 $ cd provision_proxmox
+$ cp inventory/example_provision_inventory.yml inventory/provision.yml
 $ vi inventory/provision.yml
 Edit the inventory so it has your desired settings
-$ vi roles/provision_proxmox_vms/defaults/main.yml
-Edit the defaults/main.yml so it has your desired settings
 
 
 ```
@@ -77,8 +76,7 @@ Requirements
 - The community.general collection is installed
 - The ansible.posix collection is installed
 - Path for the private_key_file variable in the included ansible.cfg file is correct. 
-- A valid inventory file.  
-**Example Inventory:** [provision_inventory.yml](inventory/provision_inventory.yml)
+- A valid [inventory](inventory/example_provision_inventory.yml)
 
 ##### PLAYBOOK REQUIREMENTS
 - A desired cloud-init user/pass for provisioning
@@ -99,11 +97,19 @@ Example Syntax
 ```
 ### To unsubscribe and deprovision virtual machines
 ```
-    ansible-playbook -i inventory/provision site.yml --tags never -e clean=true
+    ansible-playbook -i inventory/provision.yml site.yml --tags never -e clean=true
 ```
 ### To deprovision virtual machines 
 ```
     ansible-playbook site.yml --tags never 
+```
+### After provisioning, you can begin using the dynamic inventory [file](inventory/dynamic_proxmox_inv.yml).
+```
+    ansible-playbook -i inventory/dynamic.yml my_other_playbook.yml 
+```
+### You can also use the static inventory.yml for your inventory.
+```
+    ansible-playbook -i inventory/provision.yml yet_another_playbook.yml 
 ```
 ---
 Example Playbook 
