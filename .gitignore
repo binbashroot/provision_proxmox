@@ -9,4 +9,4 @@ images/
 *.tgz
 *.tar.gz
 inventory/provision.yml
-inventory/dynamic.yml
+inventory/dynamic.proxmox.yml

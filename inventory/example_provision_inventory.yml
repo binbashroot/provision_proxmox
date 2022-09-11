@@ -1,7 +1,7 @@
----
 # THIS IS AN EXAMPLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
 # USED AT YOUR DISCRETION. YMMV
 #
+# ---
 # virtual_machines:
 #   hosts:
 #     ansible:

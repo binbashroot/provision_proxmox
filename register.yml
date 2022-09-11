@@ -1,5 +1,5 @@
 ---
-- hosts: newrhelservers
+- hosts: rhelservers
   gather_facts: True
   become: True
   tasks:

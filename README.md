@@ -105,7 +105,7 @@ Example Syntax
 ```
 ### After provisioning, you can begin using the dynamic inventory [file](inventory/dynamic_proxmox_inv.yml).
 ```
-    ansible-playbook -i inventory/dynamic.yml my_other_playbook.yml 
+    ansible-playbook -i inventory/dynamic.proxmox.yml my_other_playbook.yml 
 ```
 ### You can also use the static inventory.yml for your inventory.
 ```
