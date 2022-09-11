@@ -1,0 +1,72 @@
+# THIS IS AN EXAMPLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
+# USED AT YOUR DISCRETION. YMMV
+#
+# ---
+# virtual_machines:
+#   hosts:
+#     ansible:
+#         ansible_host: 10.0.1.100
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 10.0.1.1
+#         cores: 1
+#         ram: 2048
+# Format for disk is disk location and size
+#         disk2: 'local-lvm:5'
+#         disk3: 'local-lvm:5'
+#         disk4: 'local-lvm:5'
+#         tags:
+#           - rhel9
+#           - rhel
+#           - controller
+
+#     satellite:
+#         ansible_host: 10.0.1.101
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 10.0.1.1
+#         cores: 1
+#         ram: 2048
+#         tags:
+#           - rhel8
+#           - rhel
+#           - server
+#           - dev
+
+#     servera:
+#         ansible_host: 10.0.1.102
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 10.0.1.1
+#         cores: 1
+#         ram: 2048     
+#         tags:
+#             - rhel
+#             - rhel9
+
+#     serverb:
+#         ansible_host: 10.0.1.103
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 10.0.1.1
+#         cores: 1
+#         ram: 2048     
+#         tags:
+#             - rhel
+#             - rhel8
+
+#     serverd:
+#         ansible_host: 10.0.1.104
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 10.0.1.1
+#         cores: 1
+#         ram: 2048     
+#         tags:
+#             - rhel
+#             - rhel8
+
+#     servere:
+#         ansible_host: 10.0.1.105
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 10.0.1.1
+#         cores: 1
+#         ram: 2048     
+#         tags:
+#             - rhel
+#             - rhel7

@@ -21,10 +21,15 @@ Print a reminder to add the hosts to DNS
 Quick Start Instructions
 ------------
 ```
-On Proxmox Server
+#On Ansible Host
+$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_cloud_init
 $ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_proxmox_admin
 $ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
+
+#Connect to Proxmox Server
 $ ssh -i ~/.ssh/id_proxmox_admin YOURADMINUSER@proxmox.example.com
+
+#On Proxmox Server
 # pvesm add dir qcow_images --path /opt/qcow_images
 # exit
 
@@ -32,8 +37,8 @@ Download RHEL QCOW images from access.redhat.com and upload them to your Proxmox
 Be sure the images are resided in the /opt/qcow_images/images dir
 Take Note of the file names you downloaded
 
+On Ansible Host
 $ git clone https://github.com/binbashroot/provision_promox.git
-$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_cloud_init
 $ set +o history
 $ export PROXMOX_PASSWORD='*******'
 $ export PROXMOX_HOST='proxmox.example.com'
@@ -41,8 +46,9 @@ $ export PROXMOX_USER='jdoeo@pam'
 $ export REDHAT_PASS='******'
 $ export REDHAT_USER='jdoe@duck.com'
 $ cd provision_proxmox
-$ vi roles/provision_proxmox_vms/defaults/main.yml
-Edit the defaults/main.yml so it has your desired settings
+$ cp inventory/example_provision_inventory.yml inventory/provision.yml
+$ vi inventory/provision.yml
+Edit the inventory so it has your desired settings
 
 
 ```
@@ -70,6 +76,8 @@ Requirements
 - The community.general collection is installed
 - The ansible.posix collection is installed
 - Path for the private_key_file variable in the included ansible.cfg file is correct. 
+- A valid [inventory](inventory/example_provision_inventory.yml)
+
 ##### PLAYBOOK REQUIREMENTS
 - A desired cloud-init user/pass for provisioning
 - A valid ssh key to be use for distributing to hosts via cloud-init
@@ -82,18 +90,26 @@ None
 
 Example Syntax 
 ----------------
-### To provision virtual machines:
+### To initially provision virtual machines:
 
 ```
-    ansible-playbook site.yml
+    ansible-playbook -i inventory/provision.yml site.yml
 ```
 ### To unsubscribe and deprovision virtual machines
 ```
-    ansible-playbook site.yml --tags never -e clean=true
+    ansible-playbook -i inventory/provision.yml site.yml --tags never -e clean=true
 ```
 ### To deprovision virtual machines 
 ```
     ansible-playbook site.yml --tags never 
+```
+### After provisioning, you can begin using the dynamic inventory [file](inventory/dynamic_proxmox_inv.yml).
+```
+    ansible-playbook -i inventory/dynamic.proxmox.yml my_other_playbook.yml 
+```
+### You can also use the static inventory.yml for your inventory.
+```
+    ansible-playbook -i inventory/provision.yml yet_another_playbook.yml 
 ```
 ---
 Example Playbook 
@@ -101,7 +117,7 @@ Example Playbook
 
 ```
 ---
-- hosts: localhost
+- hosts: virtual_machines
   gather_facts: false
   collections:
        community.general
