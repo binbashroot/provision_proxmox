@@ -1,8 +1,12 @@
 ---
-- hosts: rhelservers
+- hosts: virtual_machines 
   gather_facts: True
   become: True
   tasks:
+    - meta: end_host
+      when: 
+        - ansible_distribution is defined 
+        - ansible_distribution|lower != "redhat"
 
     - block:
 
@@ -53,14 +57,12 @@
     
       when:
           - redhat_user is defined 
-          - redhat_user|length > 0 
-          - redhat_password is defined 
-          - redhat_password|length > 0 
+          - redhat_pass is defined 
 
-    - name: Change the remote user password to something random since we know ssh keys work
-      ansible.builtin.user:
-              name: "{{ cloud_init_user  }}"
-              password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
+    # - name: Change the remote user password to something random since we know ssh keys work
+    #   ansible.builtin.user:
+    #           name: "{{ cloud_init_user  }}"
+    #           password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
 
     - name: Print reminder
       debug:

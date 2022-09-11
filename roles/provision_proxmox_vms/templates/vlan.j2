@@ -1,2 +1,2 @@
 
-{% if virtual_machine['vlan'] is defined %},tag={{ virtual_machine['vlan'] }}{% endif %}
+{% if hostvars[inventory_hostname]['vlan'] %},tag={{ hostvars[inventory_hostname]['vlan'] }}{% endif %}
