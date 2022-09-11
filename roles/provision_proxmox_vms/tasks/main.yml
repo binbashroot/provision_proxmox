@@ -29,9 +29,9 @@
         - name: Create new VM with one network interface, three virto hard disk, 4 cores, and 2 vcpus
           community.general.proxmox_kvm:
                   agent: 'enabled=1'
-                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
-                  api_user: "{{ lookup('env','PROXMOX_USER') }}"
-                  api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+                  api_host: "{{ proxmox_api_host }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  api_password: "{{ proxmox_api_pass }}"
                   bios: "{{ hostvars[inventory_hostname]['bios']|default('seabios') }}"
                   ciuser: "{{ cloud_init_user }}"
                   cipassword: "{{ cloud_init_pass }}"
@@ -84,9 +84,9 @@
         - name: Update VM so it will boot from scsi0
           community.general.proxmox_kvm:
                   agent: 'enabled=1'
-                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
-                  api_user: "{{ lookup('env','PROXMOX_USER') }}"
-                  api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+                  api_host: "{{ proxmox_api_host }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  api_password: "{{ proxmox_api_pass }}"
                   boot: cnd
                   bootdisk: "{{ bootdisk|default('scsi0') }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
@@ -103,9 +103,9 @@
 
         - name: Start VM
           community.general.proxmox_kvm:
-                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
-                  api_user: "{{ lookup('env','PROXMOX_USER') }}"
-                  api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+                  api_host: "{{ proxmox_api_host }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  api_password: "{{ proxmox_api_pass }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   state: started
@@ -120,9 +120,9 @@
 
         - name: Delete VM
           community.general.proxmox_kvm:
-                  api_host: "{{ lookup('env','PROXMOX_HOST') }}"
-                  api_user: "{{ lookup('env','PROXMOX_USER') }}"
-                  api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+                  api_host: "{{ proxmox_api_host }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  api_password: "{{ proxmox_api_pass }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   state: absent
@@ -153,9 +153,9 @@
 
       - name: Delete VM
         community.general.proxmox_kvm:
-                api_host: "{{ lookup('env','PROXMOX_HOST') }}"
-                api_user: "{{ lookup('env','PROXMOX_USER') }}"
-                api_password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+                api_host: "{{ proxmox_api_host }}"
+                api_user: "{{ proxmox_api_user }}"
+                api_password: "{{ proxmox_api_pass }}"
                 name: "{{ inventory_hostname }}.{{ domain }}"
                 node: "{{ proxmox_node }}"
                 state: absent
