@@ -1,0 +1,66 @@
+---
+virtual_machines:
+  hosts:
+    controller:
+        ansible_host: 192.168.1.100
+        cidr: 24
+        gateway: 192.168.1.1
+        cores: 1
+        ram: 2048
+        scsi_second_disk_size: 10
+        tags:
+          - rhel9
+          - rhel
+          - controller
+
+    servera:
+        ansible_host: 192.168.1.101
+        cidr: 24
+        gateway: 192.168.1.1
+        cores: 1
+        ram: 2048
+        tags:
+          - rhel8
+          - rhel
+          - server
+          - dev
+
+    serverb:
+        ansible_host: 192.168.1.102
+        cidr: 24
+        gateway: 192.168.1.1
+        cores: 1
+        ram: 2048     
+        tags:
+            - rhel
+            - rhel9
+
+    serverc:
+        ansible_host: 192.168.1.103
+        cidr: 24
+        gateway: 192.168.1.1
+        cores: 1
+        ram: 2048     
+        tags:
+            - rhel
+            - rhel8
+
+    serverd:
+        ansible_host: 192.168.1.104
+        cidr: 24
+        gateway: 192.168.1.1
+        cores: 1
+        ram: 2048     
+        tags:
+            - rhel
+            - rhel8
+
+    servere:
+        ansible_host: 192.168.1.105
+        cidr: 24
+        gateway: 192.168.1.1
+        cores: 1
+        ram: 2048     
+        tags:
+            - rhel
+            - rhel7

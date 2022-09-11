@@ -12,78 +12,21 @@ proxmox_admin_ssh_user: root
 proxmox_api_host: "{{ lookup('env','PROXMOX_URL') }}"
 proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
-proxmox_node: promox  # fix this
+proxmox_node: proxmox 
 
-qcow_image_path: /opt/qcow_images/images
+qcow_image_dir: /opt/qcow_images/images
 
-rhel7_image: rhel-server-7.9-x86_64-kvm.qcow2
-rhel8_image: rhel-8.6-x86_64-kvm.qcow2
-rhel9_image: rhel-baseos-9.0-x86_64-kvm.qcow2
+qcow_images:
+
+  - name: rhel7
+    qcow_file: rhel-server-7.9-x86_64-kvm.qcow2
+
+  - name: rhel8
+    qcow_file: rhel-8.6-x86_64-kvm.qcow2
+
+  - name: rhel9
+    qcow_file: rhel-baseos-9.0-x86_64-kvm.qcow2
 
 virtual_machine_nameservers:
     - 192.168.1.100
     - 192.168.1.200
-
-
-virtual_machines:
-
-   - name: controller
-     ip_with_cidr: 192.168.1.101/24
-     gateway: 192.168.1.1
-     cores: 1
-     ram: 2048     
-     qcow_image: "{{ qcow_image_path }}/{{ rhel9_image }}"
-     tags:
-        - rhel
-        - rhel9
-        - controller
-
-   - name: servera
-     ip_with_cidr: 192.168.1.102/24
-     gateway: 192.168.1.1
-     cores: 1
-     ram: 2048     
-     qcow_image: "{{ qcow_image_path }}/{{ rhel9_image }}"
-     tags:
-        - rhel
-        - rhel9
-
-   - name: serverb
-     ip_with_cidr: 192.168.1.103/24
-     gateway: 192.168.1.1
-     cores: 1
-     ram: 2048     
-     qcow_image: "{{ qcow_image_path }}/{{ rhel9_image }}"
-     tags:
-        - rhel
-        - rhel9
-
-   - name: serverc
-     ip_with_cidr: 192.168.1.104/24
-     gateway: 192.168.1.1
-     cores: 1
-     ram: 2048     
-     qcow_image: "{{ qcow_image_path }}/{{ rhel8_image }}"
-     tags:
-        - rhel
-        - rhel8
-
-   - name: serverd
-     ip_with_cidr: 192.168.1.105/24
-     gateway: 192.168.1.1
-     cores: 1
-     ram: 2048     
-     qcow_image: "{{ qcow_image_path }}/{{ rhel8_image }}"
-     tags:
-        - rhel
-        - rhel8
-
-   - name: servere
-     ip_with_cidr: 192.168.1.106/24
-     gateway: 192.168.1.1
-     cores: 1
-     ram: 2048     
-     qcow_image: "{{ qcow_image_path }}/{{ rhel7_image }}"
-     tags:
-        - rhel
-        - rhel7

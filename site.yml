@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: virtual_machines
   gather_facts: false
   collections:
        community.general
@@ -15,39 +15,44 @@
             - lookup('env','PROXMOX_PASSWORD') is defined 
             - lookup('env','REDHAT_USER') is defined 
             - lookup('env','REDHAT_PASS') is defined 
+       tags:
+         - always
  
-     - name: Ensure netaddr python module is installed
+
+     - name: Ensure netaddr python module is installed if not in a virtual environment
        ansible.builtin.pip:
            name: netaddr
-           extra_args: --user 
+           extra_args: "{{ omit if lookup('env','VIRTUAL_ENV') is defined  else '--user' }}"
+       delegate_to: localhost
+       run_once: True
 
   roles:
      - provision_proxmox_vms
 
-  tasks:
+# tasks:
 
-     - name: Add host to dynamic inventory for a future run
-       ansible.builtin.add_host:
-              name: "{{ vm['name'] }}.{{ domain }}"
-              groups: newrhelservers
-              ansible_ssh_user: "{{ cloud_init_user }}"
-              ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
-              ansible_host: "{{ vm['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
-              provision_tags: "{{ vm['tags'] }}"
-       loop: "{{ virtual_machines }}"
-       loop_control:
-              loop_var: vm
-       when: 
-          - register2redhat is defined
-          - register2redhat|bool
+    #  - name: Add host to dynamic inventory for a future run
+    #    ansible.builtin.add_host:
+    #           name: "{{ vm['name'] }}.{{ domain }}"
+    #           groups: newrhelservers
+    #           ansible_ssh_user: "{{ cloud_init_user }}"
+    #           ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
+    #           ansible_host: "{{ vm['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
+    #           provision_tags: "{{ vm['tags'] }}"
+    #    loop: "{{ virtual_machines }}"
+    #    loop_control:
+    #           loop_var: vm
+    #    when: 
+    #       - register2redhat is defined
+    #       - register2redhat|bool
        
-     - name: wait to ensure hosts are actually running beyond just having an IP
-       pause:
-           seconds: 30
+    #  - name: wait to ensure hosts are actually running beyond just having an IP
+    #    pause:
+    #        seconds: 30
 
-- ansible.builtin.import_playbook: register.yml
-  when: 
-     - groups['newrhelservers'] is defined 
-     - groups['newrhelservers']|length > 0
+# - ansible.builtin.import_playbook: register.yml
+#   when: 
+#      - groups['newrhelservers'] is defined 
+#      - groups['newrhelservers']|length > 0
 
     
