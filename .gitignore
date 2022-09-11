@@ -8,3 +8,5 @@ images/
 .vault*
 *.tgz
 *.tar.gz
+inventory/provision.yml
+inventory/dynamic.yml
