@@ -3,11 +3,14 @@ virtual_machines:
   hosts:
     controller:
         ansible_host: 192.168.1.100
-        cidr: 24
+        ipaddress: "{{ ansible_host }}/24"
         gateway: 192.168.1.1
         cores: 1
         ram: 2048
-        scsi_second_disk_size: 10
+        # Format for disk is disk location and size
+        disk2: 'local-lvm:5'
+        disk3: 'local-lvm:5'
+        disk4: 'local-lvm:5'
         tags:
           - rhel9
           - rhel
@@ -15,10 +18,11 @@ virtual_machines:
 
     servera:
         ansible_host: 192.168.1.101
-        cidr: 24
+        ipaddress: "{{ ansible_host }}/24"
         gateway: 192.168.1.1
         cores: 1
         ram: 2048
+        disk2: 'local-lvm:5'
         tags:
           - rhel8
           - rhel
@@ -27,7 +31,7 @@ virtual_machines:
 
     serverb:
         ansible_host: 192.168.1.102
-        cidr: 24
+        ipaddress: "{{ ansible_host }}/24"
         gateway: 192.168.1.1
         cores: 1
         ram: 2048     
@@ -37,7 +41,7 @@ virtual_machines:
 
     serverc:
         ansible_host: 192.168.1.103
-        cidr: 24
+        ipaddress: "{{ ansible_host }}/24"
         gateway: 192.168.1.1
         cores: 1
         ram: 2048     
@@ -47,7 +51,7 @@ virtual_machines:
 
     serverd:
         ansible_host: 192.168.1.104
-        cidr: 24
+        ipaddress: "{{ ansible_host }}/24"
         gateway: 192.168.1.1
         cores: 1
         ram: 2048     
@@ -57,7 +61,7 @@ virtual_machines:
 
     servere:
         ansible_host: 192.168.1.105
-        cidr: 24
+        ipaddress: "{{ ansible_host }}/24"
         gateway: 192.168.1.1
         cores: 1
         ram: 2048     

@@ -5,3 +5,6 @@ test.yml
 .venv/
 .idea
 images/
+.vault*
+*.tgz
+*.tar.gz

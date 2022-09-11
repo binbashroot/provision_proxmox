@@ -1,7 +1,7 @@
 ---
 # defaults file for provision_proxmox_vms
 cloud_init_user: "{{ lookup('env','USER') }}"
-cloud_init_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+cloud_init_pass: "{{ proxmox_api_pass }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_rsa_proxmox.pub') }}"
 cloud_init_private_key: ~/.ssh/id_rsa_proxmox
 
@@ -9,10 +9,13 @@ domain: example.com
 
 proxmox_admin_key: ~/.ssh/id_proxmox_admin
 proxmox_admin_ssh_user: root
-proxmox_api_host: "{{ lookup('env','PROXMOX_URL') }}"
+proxmox_api_host: "{{ lookup('env','PROXMOX_HOST') }}"
 proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
 proxmox_node: proxmox 
+
+redhat_user: "{{ lookup('env','REDHAT_USER') }}"
+redhat_password: "{{ lookup('env','REDHAT_PASSWORD') }}"
 
 qcow_image_dir: /opt/qcow_images/images
 

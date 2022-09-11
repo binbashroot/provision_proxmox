@@ -26,7 +26,7 @@
 - name: run the vm block
   block: 
 
-        - name: Create new VM with one network interface, three virto hard disk, 4 cores, and 2 vcpus
+        - name: Create new VM 
           community.general.proxmox_kvm:
                   agent: 'enabled=1'
                   api_host: "{{ proxmox_api_host }}"
@@ -41,7 +41,7 @@
                   ide:
                       ide0: "{{ cloud_init_storage|default('local-lvm:cloudinit,media=cdrom') }}"
                   ipconfig:
-                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ansible_host'] }}/{{ hostvars[inventory_hostname]['cidr'] }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
+                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ipaddress'] }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
                   memory: "{{ hostvars[inventory_hostname]['ram']|default('2048') }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   net:
@@ -58,24 +58,34 @@
                       virtio0: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('2') }}"
                   vcpus: "{{ hostvars[inventory_hostname]['vcpus']|default('1') }}"
           loop: "{{ ansible_play_hosts }}"
+          vars:
           loop_control:
               pause: 2
           register: __proxmox_results
           delegate_to: localhost
           when: inventory_hostname == item
               
+        # - debug:
+        #     var: hostvars[inventory_hostname]['disk2']
+        #   loop: "{{ __proxmox_results['results'] }}"
+
         - name: Import the disk to proxmox
           ansible.builtin.shell: |
-             /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_dir }}/{{ hostvars[inventory_hostname]['image_to_use'] }} {{ proxmox_storage|default('local-lvm') }}
-             /usr/sbin/qm set {{ item['vmid'] }} --{{ bootdisk|default('scsi0') }} {{ proxmox_storage|default('local-lvm') }}:vm-{{ item['vmid'] }}-disk-1
              /usr/sbin/qm set {{ item['vmid'] }} --delete virtio0 
              /usr/sbin/qm set {{ item['vmid'] }} --delete unused0
+             /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_dir }}/{{ hostvars[inventory_hostname]['image_to_use'] }} {{ proxmox_storage|default('local-lvm') }}
+             /usr/sbin/qm set {{ item['vmid'] }} --{{ bootdisk|default('scsi0') }} {{ proxmox_storage|default('local-lvm') }}:vm-{{ item['vmid'] }}-disk-0 
+             {% if hostvars[inventory_hostname]['disk2'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi1 {{ disk2 }}{% endif %} 
+             {% if hostvars[inventory_hostname]['disk3'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi2 {{ disk3 }}{% endif %} 
+             {% if hostvars[inventory_hostname]['disk4'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi3 {{ disk4 }}{% endif %} 
+
           failed_when: false
           delegate_to: "{{ lookup('env','PROXMOX_HOST') }}"
           vars: 
               ansible_ssh_user:  "{{ proxmox_admin_ssh_user }}"   
               ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
           loop: "{{ __proxmox_results['results'] }}"
+          register: __shell_output
           when: 
               -  __proxmox_results is changed
               - inventory_hostname in item['item']
