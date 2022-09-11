@@ -1,2 +1,2 @@
 
-{% if hostvars[inventory_hostname]['vlan'] %},tag={{ hostvars[inventory_hostname]['vlan'] }}{% endif %}
+{% if hostvars[inventory_hostname]['vlan'] is defined %},tag={{ hostvars[inventory_hostname]['vlan'] }}{% endif %}
