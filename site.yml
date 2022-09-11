@@ -14,7 +14,7 @@
             - proxmox_api_user is defined 
             - proxmox_api_pass is defined 
             - redhat_user is defined 
-            - redhat_password is defined 
+            - redhat_pass is defined 
        tags:
          - always
  

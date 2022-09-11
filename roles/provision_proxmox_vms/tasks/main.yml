@@ -161,6 +161,8 @@
         failed_when: false
         when: 
           - clean is defined
+          - redhat_pass is defined
+          - redhat_user is defined
 
       - name: Delete VM
         community.general.proxmox_kvm:
