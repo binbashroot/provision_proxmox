@@ -17,7 +17,7 @@ proxmox_node: proxmox
 redhat_user: "{{ lookup('env','REDHAT_USER') }}"
 redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
 
-qcow_image_dir: /opt/qcow_images/images
+qcow_image_path: /opt/qcow_images/images
 
 qcow_images:
 

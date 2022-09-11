@@ -9,7 +9,7 @@
 
 - name: Verify qcow images path
   stat: 
-     path: "{{ qcow_image_dir }}/{{ image_to_use }}"
+     path: "{{ qcow_image_path }}/{{ image_to_use }}"
   register: __qcow_check
   vars: 
       ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
@@ -73,7 +73,7 @@
           ansible.builtin.shell: |
              /usr/sbin/qm set {{ item['vmid'] }} --delete virtio0 
              /usr/sbin/qm set {{ item['vmid'] }} --delete unused0
-             /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_dir }}/{{ hostvars[inventory_hostname]['image_to_use'] }} {{ proxmox_storage|default('local-lvm') }}
+             /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_path }}/{{ hostvars[inventory_hostname]['image_to_use'] }} {{ proxmox_storage|default('local-lvm') }}
              /usr/sbin/qm set {{ item['vmid'] }} --{{ bootdisk|default('scsi0') }} {{ proxmox_storage|default('local-lvm') }}:vm-{{ item['vmid'] }}-disk-0 
              {% if hostvars[inventory_hostname]['disk2'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi1 {{ disk2 }}{% endif %} 
              {% if hostvars[inventory_hostname]['disk3'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi2 {{ disk3 }}{% endif %} 
