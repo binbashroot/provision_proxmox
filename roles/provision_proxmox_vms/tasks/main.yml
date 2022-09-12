@@ -121,10 +121,56 @@
                   state: started
           delegate_to: localhost
           loop: "{{ __proxmox_results['results'] }}"
+          register: __vm_start_status
           when: 
               -  __proxmox_results is changed
               - inventory_hostname in item['item']
               - item['vmid']
+
+        - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+          ansible.builtin.wait_for:
+            port: 22
+            host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+            search_regex: OpenSSH
+            delay: 10
+          connection: local
+          tags:
+             - register
+
+        - name: Grab minimal facts
+          ansible.builtin.setup:
+            gather_subset: min
+          when:
+            -  __vm_start_status is changed
+          tags:
+             - register
+
+        - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
+          community.general.redhat_subscription:
+                  state: present
+                  username: "{{ redhat_user }}"
+                  password: "{{ redhat_pass }}"
+                  auto_attach: true
+          when:
+            - __vm_start_status is changed
+            - ansible_distribution is defined
+            - ansible_distribution|lower == 'redhat'
+          become: True
+          tags:
+             - register
+
+        - name: install packages for language locale
+          dnf:
+            name:
+              - glibc-langpack-en
+          when:
+            - __vm_start_status is changed
+            - ansible_distribution is defined
+            - ansible_distribution|lower == 'redhat'
+            - ansible_distribution_major_version|int >= 8 
+          become: True
+          tags:
+             - register
 
   rescue: 
 
