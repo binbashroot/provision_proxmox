@@ -5,3 +5,8 @@ test.yml
 .venv/
 .idea
 images/
+.vault*
+*.tgz
+*.tar.gz
+inventory/provision.yml
+inventory/dynamic.proxmox.yml

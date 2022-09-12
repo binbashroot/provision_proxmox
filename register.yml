@@ -1,16 +1,20 @@
 ---
-- hosts: newrhelservers
+- hosts: virtual_machines 
   gather_facts: True
   become: True
   tasks:
+    - meta: end_host
+      when: 
+        - ansible_distribution is defined 
+        - ansible_distribution|lower != "redhat"
 
     - block:
 
         - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
           community.general.redhat_subscription:
               state: present
-              username: "{{ lookup('env','REDHAT_USER') }}"
-              password: "{{ lookup('env','REDHAT_PASS') }}"
+              username: "{{ redhat_user }}"
+              password: "{{ redhat_pass }}"
               auto_attach: true
 
         - name: install packages for language locale
@@ -52,15 +56,13 @@
              - ansible_distribution_major_version|int >= 9
     
       when:
-          - lookup('env','REDHAT_USER') is defined 
-          - lookup('env','REDHAT_USER')|length > 0 
-          - lookup('env','REDHAT_PASS') is defined 
-          - lookup('env','REDHAT_PASS')|length > 0 
+          - redhat_user is defined 
+          - redhat_pass is defined 
 
-    - name: Change the remote user password to something random since we know ssh keys work
-      ansible.builtin.user:
-              name: "{{ lookup('env', 'USER') }}"
-              password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
+    # - name: Change the remote user password to something random since we know ssh keys work
+    #   ansible.builtin.user:
+    #           name: "{{ cloud_init_user  }}"
+    #           password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
 
     - name: Print reminder
       debug:
