@@ -13,7 +13,7 @@
   register: __qcow_check
   vars: 
       ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-      ansible_ssh_private_key: "{{ proxmox_admin_key }}"
+      ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
   delegate_to: "{{ proxmox_node }}.{{ domain }}"
 
 - name: Assert that qcow files exist on proxmox server
@@ -57,8 +57,8 @@
                   virtio:
                       virtio0: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('2') }}"
                   vcpus: "{{ hostvars[inventory_hostname]['vcpus']|default('1') }}"
+                  vmid: "{{ hostvars[inventory_hostname]['vmid']|default(omit) }}"
           loop: "{{ ansible_play_hosts }}"
-          vars:
           loop_control:
               pause: 2
           register: __proxmox_results
@@ -156,7 +156,7 @@
               password: "{{ redhat_pass }}"
         vars: 
              ansible_ssh_user: "{{ cloud_init_user }}"
-             ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
+             ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
         become: true
         failed_when: false
         when: 
