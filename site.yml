@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ target|virtual_machines }}"
+- hosts: "{{ target | default('virtual_machines') }}"
   gather_facts: false
   collections:
        community.general
