@@ -154,6 +154,10 @@
             if [ ${major_version} == '8' ];then 
             dnf install python3 -y
             fi
+
+          vars: 
+             ansible_ssh_user: "{{ cloud_init_user }}"
+             ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
           become: True
           failed_when: false
           when:
