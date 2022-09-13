@@ -22,7 +22,7 @@ Quick Start Instructions
 ------------
 ```
 #On Ansible Host
-$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_cloud_init
+$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_proxmox
 $ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_proxmox_admin
 $ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
 
@@ -93,7 +93,14 @@ Example Syntax
 ### To initially provision virtual machines:
 
 ```
+    To provision your whole inventory:
     ansible-playbook -i inventory/provision.yml site.yml
+
+    To provision to a specific host in your inventory:
+    ansible-playbook -i inventory/provision.yml site.yml --limit myhost
+
+    To provision to all hosts and exclude specific host in your inventory:
+    ansible-playbook -i inventory/provision.yml site.yml --limit '!myhost'
 ```
 ### To unsubscribe and deprovision virtual machines
 ```

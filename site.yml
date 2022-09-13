@@ -13,8 +13,12 @@
             - proxmox_api_host is defined 
             - proxmox_api_user is defined 
             - proxmox_api_pass is defined 
-            - redhat_user is defined 
-            - redhat_pass is defined 
+            - cloud_init_user|length > 0
+            - cloud_init_pass|length > 0
+            - cloud_init_public_key|length > 0
+            - proxmox_api_host|length > 0
+            - proxmox_api_user|length > 0
+            - proxmox_api_pass|length > 0
        tags:
          - always
  
@@ -29,30 +33,6 @@
   roles:
      - provision_proxmox_vms
 
-# tasks:
 
-    #  - name: Add host to dynamic inventory for a future run
-    #    ansible.builtin.add_host:
-    #           name: "{{ vm['name'] }}.{{ domain }}"
-    #           groups: newrhelservers
-    #           ansible_ssh_user: "{{ cloud_init_user }}"
-    #           ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
-    #           ansible_host: "{{ vm['ip_with_cidr']|ansible.utils.ipaddr('address') }}"
-    #           provision_tags: "{{ vm['tags'] }}"
-    #    loop: "{{ virtual_machines }}"
-    #    loop_control:
-    #           loop_var: vm
-    #    when: 
-    #       - register2redhat is defined
-    #       - register2redhat|bool
-       
-    #  - name: wait to ensure hosts are actually running beyond just having an IP
-    #    pause:
-    #        seconds: 30
-
-# - ansible.builtin.import_playbook: register.yml
-#   when: 
-#      - groups['newrhelservers'] is defined 
-#      - groups['newrhelservers']|length > 0
 
     

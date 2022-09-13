@@ -105,6 +105,7 @@
                   validate_certs: false
                   update: yes
           delegate_to: localhost
+          register: __update_status
           loop: "{{ __proxmox_results['results'] }}"
           when: 
               -  __proxmox_results is changed
@@ -121,10 +122,39 @@
                   state: started
           delegate_to: localhost
           loop: "{{ __proxmox_results['results'] }}"
+          register: __vm_start_status
           when: 
               -  __proxmox_results is changed
               - inventory_hostname in item['item']
               - item['vmid']
+
+        - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+          ansible.builtin.wait_for:
+            port: 22
+            host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+            search_regex: OpenSSH
+            delay: 15
+          connection: local
+
+        - name: Register RHEL hosts to Red Hat using the raw module and truncate sudo log 
+          raw: |
+            subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
+            truncate -s 0 /var/log/secure && \
+            major_version=$(rpm -q --queryformat '%{RELEASE}' rpm | grep -o [[:digit:]]*\$) && \
+            if [ ${major_version} == '8' ];then 
+            dnf install python3 -y
+            fi
+          become: True
+          failed_when: false
+          when:
+            - redhat_user is defined
+            - redhat_user|length > 0
+            - redhat_pass is defined
+            - redhat_pass|length > 0
+            - __vm_start_status is changed
+            - hostvars[inventory_hostname]['tags'] is defined 
+            - "'rhel' in hostvars[inventory_hostname]['tags']"
+            - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
   rescue: 
 
@@ -136,13 +166,9 @@
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   state: absent
-          loop: "{{ __proxmox_results['results'] }}"
-          loop_control:
-                loop_var: vmid_info
-          when: 
-              - item['item'] is defined 
-              - inventory_hostname in item['item']
-
+                  force: yes
+          delegate_to: localhost
+              
   tags: 
      - provision           
 
