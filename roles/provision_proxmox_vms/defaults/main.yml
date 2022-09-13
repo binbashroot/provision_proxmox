@@ -22,7 +22,7 @@ qcow_image_path: /opt/qcow_images/images
 qcow_images:
 
   - name: rhel7
-    qcow_file: rhel-server-7.9-x86_64-kvm.qcow2
+    qcow_file: rhel-server-7.9-update-12-x86_64-kvm.qcow2
 
   - name: rhel8
     qcow_file: rhel-8.6-x86_64-kvm.qcow2

@@ -105,6 +105,7 @@
                   validate_certs: false
                   update: yes
           delegate_to: localhost
+          register: __update_status
           loop: "{{ __proxmox_results['results'] }}"
           when: 
               -  __proxmox_results is changed
@@ -132,45 +133,22 @@
             port: 22
             host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
             search_regex: OpenSSH
-            delay: 10
+            delay: 15
           connection: local
-          tags:
-             - register
 
-        - name: Grab minimal facts
-          ansible.builtin.setup:
-            gather_subset: min
-          when:
-            -  __vm_start_status is changed
-          tags:
-             - register
-
-        - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
-          community.general.redhat_subscription:
-                  state: present
-                  username: "{{ redhat_user }}"
-                  password: "{{ redhat_pass }}"
-                  auto_attach: true
+        - name: Register hosts manually and truncate sudo log to ensure password is not in the sudo log 
+          raw: |
+            subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
+            truncate -s 0 /var/log/secure && \
+            major_version=$(rpm -q --queryformat '%{RELEASE}' rpm | grep -o [[:digit:]]*\$) && \
+            if [ ${major_version} == '8' ];then 
+            dnf install python3 -y
+            fi
+          become: True
+          failed_when: false
           when:
             - __vm_start_status is changed
-            - ansible_distribution is defined
-            - ansible_distribution|lower == 'redhat'
-          become: True
-          tags:
-             - register
-
-        - name: install packages for language locale
-          dnf:
-            name:
-              - glibc-langpack-en
-          when:
-            - __vm_start_status is changed
-            - ansible_distribution is defined
-            - ansible_distribution|lower == 'redhat'
-            - ansible_distribution_major_version|int >= 8 
-          become: True
-          tags:
-             - register
+            - hostvars[inventory_hostname]['tags'] is defined 
 
   rescue: 
 
@@ -182,13 +160,9 @@
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   state: absent
-          loop: "{{ __proxmox_results['results'] }}"
-          loop_control:
-                loop_var: vmid_info
-          when: 
-              - item['item'] is defined 
-              - inventory_hostname in item['item']
-
+                  force: yes
+          delegate_to: localhost
+              
   tags: 
      - provision           
 
