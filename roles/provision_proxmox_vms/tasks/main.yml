@@ -220,7 +220,7 @@
                 state: absent
                 force: yes
         delegate_to: localhost
-        loop: "{{ target|default('virtual_machines') }}"
+        loop: "{{ target|default('virtual_machines')|list }}"
         when: inventory_hostname in item
         failed_when: false
 
