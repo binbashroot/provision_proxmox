@@ -136,7 +136,7 @@
             delay: 15
           connection: local
 
-        - name: Register hosts manually and truncate sudo log to ensure password is not in the sudo log 
+        - name: Register hosts using the raw module and truncate sudo log 
           raw: |
             subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
             truncate -s 0 /var/log/secure && \
@@ -147,9 +147,14 @@
           become: True
           failed_when: false
           when:
+            - redhat_user is defined
+            - redhat_user|length > 0
+            - redhat_pass is defined
+            - redhat_pass|length > 0
             - __vm_start_status is changed
             - hostvars[inventory_hostname]['tags'] is defined 
             - "'rhel' in hostvars[inventory_hostname]['tags']"
+            - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
   rescue: 
 

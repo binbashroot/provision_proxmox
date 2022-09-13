@@ -13,16 +13,12 @@
             - proxmox_api_host is defined 
             - proxmox_api_user is defined 
             - proxmox_api_pass is defined 
-            - redhat_user is defined 
-            - redhat_pass is defined 
             - cloud_init_user|length > 0
             - cloud_init_pass|length > 0
             - cloud_init_public_key|length > 0
             - proxmox_api_host|length > 0
             - proxmox_api_user|length > 0
             - proxmox_api_pass|length > 0
-            - redhat_user|length > 0
-            - redhat_pass|length > 0
        tags:
          - always
  
@@ -36,6 +32,7 @@
 
   roles:
      - provision_proxmox_vms
+
 
 
     
