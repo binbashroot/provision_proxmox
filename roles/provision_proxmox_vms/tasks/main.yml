@@ -149,6 +149,7 @@
           when:
             - __vm_start_status is changed
             - hostvars[inventory_hostname]['tags'] is defined 
+            - "'rhel' in hostvars[inventory_hostname]['tags']"
 
   rescue: 
 
