@@ -157,6 +157,9 @@
             - "'rhel' in hostvars[inventory_hostname]['tags']"
             - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
+   debug:
+     msg: "foo"
+
   rescue: 
 
         - name: Delete VM
