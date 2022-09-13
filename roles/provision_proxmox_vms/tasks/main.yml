@@ -1,4 +1,6 @@
 ---
+- meta: end_host
+  when: hostvars[inventory_hostname]['tags'] is undefined
 
 - name: Set image to use
   ansible.builtin.set_fact:
@@ -6,6 +8,7 @@
   loop: "{{ qcow_images }}"
   when: 
     - item['name'] in tags
+    - hostvars[inventory_hostname]['tags'] is defined
 
 - name: Verify qcow images path
   stat: 
