@@ -58,6 +58,7 @@
                   nameservers: "{{ virtual_machine_nameservers }}"
                   node: "{{ proxmox_node }}"
                   numa_enabled: "{{ hostvars[inventory_hostname]['numa']|default('yes') }}"
+                  onboot: "{{ hostvars[inventory_hostname]['onboot']|default('no') }}"
                   searchdomains: "{{ domain }}"
                   scsihw: virtio-scsi-pci
                   sshkeys: "{{ cloud_init_public_key }}"
@@ -128,7 +129,6 @@
                   api_password: "{{ proxmox_api_pass }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
-                  onboot: "{{ hostvars[inventory_hostname]['onboot']|default('no') }}"
                   state: started
           delegate_to: localhost
           loop: "{{ __proxmox_results['results'] }}"
