@@ -136,6 +136,15 @@
             search_regex: OpenSSH
             delay: 15
           connection: local
+          when: 
+            - redhat_user is defined
+            - redhat_user|length > 0
+            - redhat_pass is defined
+            - redhat_pass|length > 0
+            - __vm_start_status is changed
+            - hostvars[inventory_hostname]['tags'] is defined 
+            - "'rhel' in hostvars[inventory_hostname]['tags']"
+            - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
         - name: Register RHEL hosts to Red Hat using the raw module and truncate sudo log 
           raw: |
@@ -156,7 +165,6 @@
             - hostvars[inventory_hostname]['tags'] is defined 
             - "'rhel' in hostvars[inventory_hostname]['tags']"
             - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
-
 
   rescue: 
 
