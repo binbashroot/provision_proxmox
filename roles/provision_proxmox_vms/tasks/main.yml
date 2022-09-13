@@ -220,8 +220,7 @@
                 state: absent
                 force: yes
         delegate_to: localhost
-        loop: 
-          - "{{ target|default('virtual_machines') }}"
+        loop: "{{ ansible_play_hosts }}"
         when: inventory_hostname in item
         failed_when: false
 
