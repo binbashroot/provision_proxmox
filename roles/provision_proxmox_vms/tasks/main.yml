@@ -49,6 +49,7 @@
                   nameservers: "{{ virtual_machine_nameservers }}"
                   node: "{{ proxmox_node }}"
                   numa_enabled: "{{ hostvars[inventory_hostname]['numa']|default('yes') }}"
+                  onboot: true
                   searchdomains: "{{ domain }}"
                   scsihw: virtio-scsi-pci
                   sshkeys: "{{ cloud_init_public_key }}"
@@ -169,9 +170,6 @@
                   force: yes
           delegate_to: localhost
               
-  tags: 
-     - provision           
-
 - name: Cleanup when needed
   block:
 
