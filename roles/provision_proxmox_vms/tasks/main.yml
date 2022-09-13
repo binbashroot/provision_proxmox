@@ -157,20 +157,18 @@
             - "'rhel' in hostvars[inventory_hostname]['tags']"
             - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
-      debug:
+  rescue: 
 
-  # rescue: 
-
-  #       - name: Delete VM
-  #         community.general.proxmox_kvm:
-  #                 api_host: "{{ proxmox_api_host }}"
-  #                 api_user: "{{ proxmox_api_user }}"
-  #                 api_password: "{{ proxmox_api_pass }}"
-  #                 name: "{{ inventory_hostname }}.{{ domain }}"
-  #                 node: "{{ proxmox_node }}"
-  #                 state: absent
-  #                 force: yes
-  #         delegate_to: localhost
+        - name: Delete VM
+          community.general.proxmox_kvm:
+                  api_host: "{{ proxmox_api_host }}"
+                  api_user: "{{ proxmox_api_user }}"
+                  api_password: "{{ proxmox_api_pass }}"
+                  name: "{{ inventory_hostname }}.{{ domain }}"
+                  node: "{{ proxmox_node }}"
+                  state: absent
+                  force: yes
+          delegate_to: localhost
               
 - name: Cleanup when needed
   block:
