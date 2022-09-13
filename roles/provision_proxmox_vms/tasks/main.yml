@@ -121,6 +121,7 @@
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   state: started
+                  foo:  true
           delegate_to: localhost
           loop: "{{ __proxmox_results['results'] }}"
           register: __vm_start_status
