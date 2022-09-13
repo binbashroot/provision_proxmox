@@ -136,7 +136,7 @@
             delay: 15
           connection: local
 
-        - name: Register hosts using the raw module and truncate sudo log 
+        - name: Register RHEL hosts to Red Hat using the raw module and truncate sudo log 
           raw: |
             subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
             truncate -s 0 /var/log/secure && \
