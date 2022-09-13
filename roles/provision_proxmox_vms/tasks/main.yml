@@ -1,4 +1,11 @@
 ---
+- name: Print debug warning
+  debug:
+    msg: |
+       {{ inventory_hostname }} does not have an OS tag defined in inventory file
+       Skipping {{ inventory_hostname }}
+  when: hostvars[inventory_hostname]['tags'] is undefined
+
 - meta: end_host
   when: hostvars[inventory_hostname]['tags'] is undefined
 
@@ -8,7 +15,6 @@
   loop: "{{ qcow_images }}"
   when: 
     - item['name'] in tags
-    - hostvars[inventory_hostname]['tags'] is defined
 
 - name: Verify qcow images path
   stat: 
