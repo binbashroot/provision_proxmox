@@ -138,7 +138,7 @@
               - inventory_hostname in item['item']
               - item['vmid']
 
-        - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+        - name: "[Register RHEL] - Wait 300 seconds for port 22 to become open and contain OpenSSH"
           ansible.builtin.wait_for:
             port: 22
             host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
@@ -155,7 +155,7 @@
             - "'rhel' in hostvars[inventory_hostname]['tags']"
             - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
-        - name: Register RHEL hosts to Red Hat using the raw module and truncate sudo log 
+        - name: "[Register RHEL] - Hosts to Red Hat using the raw module and truncate sudo log"
           raw: |
             subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
             truncate -s 0 /var/log/secure && \

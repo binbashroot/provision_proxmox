@@ -34,7 +34,7 @@ Role Variables
 | rhel8_image | string | rhel-8.6-x86_64-kvm.qcow2 |
 | rhel9_image | string | rhel-baseos-9.0-x86_64-kvm.qcow2 |
 | virtual_machine_nameservers | list | 192.168.1.100, 192.168.1.200 | 
-| virtual_machines | dict | ***See defaults/main.yml*** |
+| virtual_machines | dict | ***See inventory/example_provision_inventory.yml*** |
 
 
 Dependencies
@@ -54,6 +54,10 @@ To deprovision virtual machines:
 
     ansible-playbook site.yml --tags never 
 
+To deprovision rhsm subscribed virtual machines:
+
+    ansible-playbook site.yml --tags never -e clean=true
+
 ```
 
 Example Playbook 
@@ -65,11 +69,6 @@ Example Playbook
   gather_facts: false
   collections:
        community.general
-  pre_tasks:
-     - name: Ensure netaddr python module is installed
-       ansible.builtin.pip:
-           name: netaddr
-           extra_args: --user 
   roles:
      - provision_proxmox_vms
 

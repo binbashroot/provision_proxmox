@@ -22,16 +22,6 @@
        tags:
          - always
  
-     - name: Ensure netaddr python module is installed if not in a virtual environment
-       ansible.builtin.pip:
-           name: netaddr
-           extra_args: "{{ omit if lookup('env','VIRTUAL_ENV') is defined  else '--user' }}"
-       delegate_to: localhost
-       run_once: True
-
   roles:
      - provision_proxmox_vms
 
-
-
-    
