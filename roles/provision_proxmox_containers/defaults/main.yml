@@ -1,0 +1,21 @@
+---
+# defaults file for provision_proxmox_containers
+cloud_init_user: "{{ lookup('env','USER') }}"
+cloud_init_pass: "{{ proxmox_api_pass }}"
+cloud_init_public_key: "{{ lookup('file','~/.ssh/id_cloud_init.pub') }}"
+cloud_init_private_key: ~/.ssh/id_cloud_init
+
+domain: scuderiadidato.com
+
+proxmox_admin_key: ~/.ssh/id_proxmox_admin
+proxmox_admin_ssh_user: root
+proxmox_api_host: "{{ lookup('env','PROXMOX_HOST') }}"
+proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
+proxmox_node: proxmox 
+
+
+
+virtual_machine_nameservers:
+    - 192.168.1.100
+    - 192.168.1.200
