@@ -45,184 +45,31 @@
   when: inventory_hostname == item
   loop: "{{ ansible_play_hosts }}"
 
+- name: Cleanup when needed
+  block:
+     - name: stop the containers
+       community.general.proxmox:
+         node: "{{ proxmox_node }}"
+         api_user: "{{ proxmox_api_user }}"
+         api_password: "{{ proxmox_api_pass }}"
+         api_host: "{{ proxmox_api_host }}"
+         vmid: "{{ hostvars[inventory_hostname]['vmid'] }}"
+         state: stopped
+       delegate_to: localhost
+       when: inventory_hostname == item
+       loop: "{{ ansible_play_hosts }}"
 
-#- name: Set image to use
-#  ansible.builtin.set_fact:
-#        image_to_use: "{{ item['qcow_file'] }}"
-#  loop: "{{ qcow_images }}"
-#  when: 
-#    - item['name'] in tags
-#
-#- name: Verify qcow images path
-#  stat: 
-#     path: "{{ qcow_image_path }}/{{ image_to_use }}"
-#  register: __qcow_check
-#  vars: 
-#      ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-#      ansible_ssh_private_key: "{{ proxmox_admin_key }}"
-#  delegate_to: "{{ proxmox_node }}.{{ domain }}"
-#
-#- name: Assert that qcow files exist on proxmox server
-#  assert: 
-#    that: 
-#      - __qcow_check['stat']['exists']
-#    fail_msg: "A defined qcow image is missing"
-#  delegate_to: localhost
-#
-#- name: run the vm block
-#  block: 
-#
-#        - name: Create new VM 
-#          community.general.proxmox_kvm:
-#                  agent: 'enabled=1'
-#                  api_host: "{{ proxmox_api_host }}"
-#                  api_user: "{{ proxmox_api_user }}"
-#                  api_password: "{{ proxmox_api_pass }}"
-#                  bios: "{{ hostvars[inventory_hostname]['bios']|default('seabios') }}"
-#                  ciuser: "{{ cloud_init_user }}"
-#                  cipassword: "{{ cloud_init_pass }}"
-#                  cores: "{{ hostvars[inventory_hostname]['cores'] }}"
-#                  cpu: "{{ hostvars[inventory_hostname]['cpu_type']|default('host') }}"
-#                  hotplug: 'network,cpu,memory,disk'
-#                  ide:
-#                      ide0: "{{ cloud_init_storage|default('local-lvm:cloudinit,media=cdrom') }}"
-#                  ipconfig:
-#                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ipaddress'] }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
-#                  memory: "{{ hostvars[inventory_hostname]['ram']|default('2048') }}"
-#                  name: "{{ inventory_hostname }}.{{ domain }}"
-#                  net:
-#                      net0: "virtio,bridge=vmbr0,firewall=1{{ lookup('template','vlan.j2') }}"
-#                  nameservers: "{{ virtual_machine_nameservers }}"
-#                  node: "{{ proxmox_node }}"
-#                  numa_enabled: "{{ hostvars[inventory_hostname]['numa']|default('yes') }}"
-#                  searchdomains: "{{ domain }}"
-#                  scsihw: virtio-scsi-pci
-#                  sshkeys: "{{ cloud_init_public_key }}"
-#                  tags: "{{ hostvars[inventory_hostname]['tags']|list }}"
-#                  validate_certs: false
-#                  virtio:
-#                      virtio0: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('2') }}"
-#                  vcpus: "{{ hostvars[inventory_hostname]['vcpus']|default('1') }}"
-#          loop: "{{ ansible_play_hosts }}"
-#          vars:
-#          loop_control:
-#              pause: 2
-#          register: __proxmox_results
-#          delegate_to: localhost
-#          when: inventory_hostname == item
-#              
-#        # - debug:
-#        #     var: hostvars[inventory_hostname]['disk2']
-#        #   loop: "{{ __proxmox_results['results'] }}"
-#
-#        - name: Import the disk to proxmox
-#          ansible.builtin.shell: |
-#             /usr/sbin/qm set {{ item['vmid'] }} --delete virtio0 
-#             /usr/sbin/qm set {{ item['vmid'] }} --delete unused0
-#             /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_path }}/{{ hostvars[inventory_hostname]['image_to_use'] }} {{ proxmox_storage|default('local-lvm') }}
-#             /usr/sbin/qm set {{ item['vmid'] }} --{{ bootdisk|default('scsi0') }} {{ proxmox_storage|default('local-lvm') }}:vm-{{ item['vmid'] }}-disk-0 
-#             {% if hostvars[inventory_hostname]['disk2'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi1 {{ disk2 }}{% endif %} 
-##             {% if hostvars[inventory_hostname]['disk3'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi2 {{ disk3 }}{% endif %} 
-#             {% if hostvars[inventory_hostname]['disk4'] is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi3 {{ disk4 }}{% endif %} 
-#
-#          failed_when: false
-#          delegate_to: "{{ proxmox_api_host }}"
-#          vars: 
-#              ansible_ssh_user:  "{{ proxmox_admin_ssh_user }}"   
-#              ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
-#          loop: "{{ __proxmox_results['results'] }}"
-#          register: __shell_output
-#          when: 
-#              -  __proxmox_results is changed
-#              - inventory_hostname in item['item']
-#              - item['vmid']
-#
-#        - name: Update VM so it will boot from scsi0
-#          community.general.proxmox_kvm:
-#                  agent: 'enabled=1'
-#                  api_host: "{{ proxmox_api_host }}"
-#                  api_user: "{{ proxmox_api_user }}"
-#                  api_password: "{{ proxmox_api_pass }}"
-#                  boot: cnd
-#                  bootdisk: "{{ bootdisk|default('scsi0') }}"
-#                  name: "{{ inventory_hostname }}.{{ domain }}"
-#                  node: "{{ proxmox_node }}"
-#                  vmid: "{{ item['vmid'] }}"
-#                  validate_certs: false
-#                  update: yes
-#          delegate_to: localhost
-#          loop: "{{ __proxmox_results['results'] }}"
-#          when: 
-#              -  __proxmox_results is changed
-#              - inventory_hostname in item['item']
-#              - item['vmid']
-#
-#        - name: Start VM
-#          community.general.proxmox_kvm:
-#                  api_host: "{{ proxmox_api_host }}"
-#                  api_user: "{{ proxmox_api_user }}"
-#                  api_password: "{{ proxmox_api_pass }}"
-#                  name: "{{ inventory_hostname }}.{{ domain }}"
-#                  node: "{{ proxmox_node }}"
-#                  state: started
-#          delegate_to: localhost
-#          loop: "{{ __proxmox_results['results'] }}"
-#          when: 
-#              -  __proxmox_results is changed
-#              - inventory_hostname in item['item']
-#              - item['vmid']
-#
-#  rescue: 
-#
-#        - name: Delete VM
-#          community.general.proxmox_kvm:
-#                  api_host: "{{ proxmox_api_host }}"
-#                  api_user: "{{ proxmox_api_user }}"
-#                  api_password: "{{ proxmox_api_pass }}"
-#                  name: "{{ inventory_hostname }}.{{ domain }}"
-#                  node: "{{ proxmox_node }}"
-#                  state: absent
-#          loop: "{{ __proxmox_results['results'] }}"
-#          loop_control:
-#                loop_var: vmid_info
-#          when: 
-#              - item['item'] is defined 
-#              - inventory_hostname in item['item']
-#
-#  tags: 
-#     - provision           
-#
-#- name: Cleanup when needed
-#  block:
-#
-#      - name: Unsubscribe from Red Hat subscriptions
-#        community.general.redhat_subscription:
-#              state: absent
-#              username: "{{ redhat_user }}"
-#              password: "{{ redhat_pass }}"
-#        vars: 
-#             ansible_ssh_user: "{{ cloud_init_user }}"
-#             ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
-#        become: true
-#        failed_when: false
-#        when: 
-#          - clean is defined
-#          - redhat_pass is defined
-#          - redhat_user is defined
-#
-#      - name: Delete VM
-#        community.general.proxmox_kvm:
-#                api_host: "{{ proxmox_api_host }}"
-#                api_user: "{{ proxmox_api_user }}"
-#                api_password: "{{ proxmox_api_pass }}"
-#                name: "{{ inventory_hostname }}.{{ domain }}"
-#                node: "{{ proxmox_node }}"
-#                state: absent
-#                force: yes
-#        delegate_to: localhost
-#        loop: "{{ groups['virtual_machines'] }}"
-#        when: inventory_hostname in item
-#        failed_when: false
-#
-#  tags:
-##    - never
+     - name: delete the containers
+       community.general.proxmox:
+         node: "{{ proxmox_node }}"
+         api_user: "{{ proxmox_api_user }}"
+         api_password: "{{ proxmox_api_pass }}"
+         api_host: "{{ proxmox_api_host }}"
+         vmid: "{{ hostvars[inventory_hostname]['vmid'] }}"
+         state: absent
+       delegate_to: localhost
+       when: inventory_hostname == item
+       loop: "{{ ansible_play_hosts }}"
+    
+  tags:
+    - never
