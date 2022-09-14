@@ -70,32 +70,32 @@
 #         tags:
 #             - rhel
 #             - rhel7
-
- containers:
-   hosts:
-     centos8:
-         ansible_host: 192.168.254.225
-         ipaddress: "{{ ansible_host }}/24"
-         gateway: 192.168.254.254
-         cores: 1
-         ram: 2048
-         ostemplate: centos-8-default_20201210_amd64.tar.xz
-         vmid: 1000
-
-     fedora:
-         ansible_host: 192.168.254.226
-         ipaddress: "{{ ansible_host }}/24"
-         gateway: 192.168.254.254
-         cores: 1
-         ram: 2048
-         ostemplate: fedora-36-default_20220622_amd64.tar.xz
-         vmid: 1001
-
-     ubuntu:
-         ansible_host: 192.168.254.227
-         ipaddress: "{{ ansible_host }}/24"
-         gateway: 192.168.254.254
-         cores: 1
-         ram: 2048
-         ostemplate: ubuntu-22.04-standard_22.04-1_amd64.tar.zst
-         vmid: 1002
+#
+# containers:
+#   hosts:
+#     centos8:
+#         ansible_host: 192.168.254.225
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 192.168.254.254
+#         cores: 1
+#         ram: 2048
+#         ostemplate: centos-8-default_20201210_amd64.tar.xz
+#         vmid: 1000
+#
+#     fedora:
+#         ansible_host: 192.168.254.226
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 192.168.254.254
+#         cores: 1
+#         ram: 2048
+#         ostemplate: fedora-36-default_20220622_amd64.tar.xz
+#         vmid: 1001
+#
+#     ubuntu:
+#         ansible_host: 192.168.254.227
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 192.168.254.254
+#         cores: 1
+#         ram: 2048
+#         ostemplate: ubuntu-22.04-standard_22.04-1_amd64.tar.zst
+#         vmid: 1002
