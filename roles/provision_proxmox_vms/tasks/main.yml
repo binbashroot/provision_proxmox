@@ -1,4 +1,13 @@
 ---
+- name: Print debug warning
+  debug:
+    msg: |
+       {{ inventory_hostname }} does not have an OS tag defined in inventory file
+       Skipping {{ inventory_hostname }}
+  when: hostvars[inventory_hostname]['tags'] is undefined
+
+- meta: end_host
+  when: hostvars[inventory_hostname]['tags'] is undefined
 
 - name: Set image to use
   ansible.builtin.set_fact:
@@ -13,7 +22,7 @@
   register: __qcow_check
   vars: 
       ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-      ansible_ssh_private_key: "{{ proxmox_admin_key }}"
+      ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
   delegate_to: "{{ proxmox_node }}.{{ domain }}"
 
 - name: Assert that qcow files exist on proxmox server
@@ -49,6 +58,7 @@
                   nameservers: "{{ virtual_machine_nameservers }}"
                   node: "{{ proxmox_node }}"
                   numa_enabled: "{{ hostvars[inventory_hostname]['numa']|default('yes') }}"
+                  onboot: "{{ hostvars[inventory_hostname]['onboot']|default('no') }}"
                   searchdomains: "{{ domain }}"
                   scsihw: virtio-scsi-pci
                   sshkeys: "{{ cloud_init_public_key }}"
@@ -57,8 +67,8 @@
                   virtio:
                       virtio0: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('2') }}"
                   vcpus: "{{ hostvars[inventory_hostname]['vcpus']|default('1') }}"
+                  vmid: "{{ hostvars[inventory_hostname]['vmid']|default(omit) }}"
           loop: "{{ ansible_play_hosts }}"
-          vars:
           loop_control:
               pause: 2
           register: __proxmox_results
@@ -105,6 +115,7 @@
                   validate_certs: false
                   update: yes
           delegate_to: localhost
+          register: __update_status
           loop: "{{ __proxmox_results['results'] }}"
           when: 
               -  __proxmox_results is changed
@@ -121,10 +132,52 @@
                   state: started
           delegate_to: localhost
           loop: "{{ __proxmox_results['results'] }}"
+          register: __vm_start_status
           when: 
               -  __proxmox_results is changed
               - inventory_hostname in item['item']
               - item['vmid']
+
+        - name: "[Register RHEL] - Wait 300 seconds for port 22 to become open and contain OpenSSH"
+          ansible.builtin.wait_for:
+            port: 22
+            host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+            search_regex: OpenSSH
+            delay: 15
+          connection: local
+          when: 
+            - redhat_user is defined
+            - redhat_user|length > 0
+            - redhat_pass is defined
+            - redhat_pass|length > 0
+            - __vm_start_status is changed
+            - hostvars[inventory_hostname]['tags'] is defined 
+            - "'rhel' in hostvars[inventory_hostname]['tags']"
+            - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
+
+        - name: "[Register RHEL] - Hosts to Red Hat using the raw module and truncate sudo log"
+          raw: |
+            subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
+            truncate -s 0 /var/log/secure && \
+            major_version=$(rpm -q --queryformat '%{RELEASE}' rpm | grep -o [[:digit:]]*\$) && \
+            if [ ${major_version} == '8' ];then 
+            dnf install python3 -y
+            fi
+
+          vars: 
+             ansible_ssh_user: "{{ cloud_init_user }}"
+             ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
+          become: True
+          failed_when: false
+          when:
+            - redhat_user is defined
+            - redhat_user|length > 0
+            - redhat_pass is defined
+            - redhat_pass|length > 0
+            - __vm_start_status is changed
+            - hostvars[inventory_hostname]['tags'] is defined 
+            - "'rhel' in hostvars[inventory_hostname]['tags']"
+            - "'autosubscribe' in hostvars[inventory_hostname]['tags']"
 
   rescue: 
 
@@ -136,16 +189,9 @@
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   node: "{{ proxmox_node }}"
                   state: absent
-          loop: "{{ __proxmox_results['results'] }}"
-          loop_control:
-                loop_var: vmid_info
-          when: 
-              - item['item'] is defined 
-              - inventory_hostname in item['item']
-
-  tags: 
-     - provision           
-
+                  force: yes
+          delegate_to: localhost
+              
 - name: Cleanup when needed
   block:
 
@@ -156,7 +202,7 @@
               password: "{{ redhat_pass }}"
         vars: 
              ansible_ssh_user: "{{ cloud_init_user }}"
-             ansible_ssh_private_key_file: "{{ cloud_init_private_key }}"
+             ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
         become: true
         failed_when: false
         when: 
@@ -174,7 +220,7 @@
                 state: absent
                 force: yes
         delegate_to: localhost
-        loop: "{{ groups['virtual_machines'] }}"
+        loop: "{{ ansible_play_hosts }}"
         when: inventory_hostname in item
         failed_when: false
 

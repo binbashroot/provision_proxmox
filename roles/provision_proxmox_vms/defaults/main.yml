@@ -3,7 +3,7 @@
 cloud_init_user: "{{ lookup('env','USER') }}"
 cloud_init_pass: "{{ proxmox_api_pass }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_rsa_proxmox.pub') }}"
-cloud_init_private_key: ~/.ssh/id_rsa_proxmox
+cloud_init_private_key_file: ~/.ssh/id_rsa_proxmox
 
 domain: example.com
 
@@ -22,7 +22,7 @@ qcow_image_path: /opt/qcow_images/images
 qcow_images:
 
   - name: rhel7
-    qcow_file: rhel-server-7.9-x86_64-kvm.qcow2
+    qcow_file: rhel-server-7.9-update-12-x86_64-kvm.qcow2
 
   - name: rhel8
     qcow_file: rhel-8.6-x86_64-kvm.qcow2

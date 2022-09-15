@@ -4,25 +4,19 @@ Provision Proxmox VMs
 A project to deploy Red Hat subscribed virtual machines to a desired proxmox host via Ansible  
 #### **How it works:**
 A cloud-init ready base vm with NO OS using a 2g ide "boot" disk is created.  
-Import a KVM cloud image as a new disk to the vm.  
-Set newly imported disk as the vm boot device.  
-Remove and delete the 2G ide "boot" disk.
-Set KVM cloud disk as the "boot" disk.  
-Start vm  
-Attach a Red Hat subscription  
-Install Glibc Language packages for RHEL8 and higher  
-Patch vm and reboot  
-Enable the AAP2 repo for any VM tagged with "controller"  
-Install ansible-core for any VM tagged with "controller"  
-Change the "{{ cloud_init_user }}" password to a random UNKNOWN password   
-Print a reminder to add the hosts to DNS  
+Imports a KVM cloud image as a new disk to the vm.  
+Sets newly imported disk as the vm boot device.  
+Remove and deletes the 2G ide disk that vm was initially created with.
+Set KVM cloud image disk as the "boot" disk.  
+Starts vm  
+Attaches a Red Hat subscription (Optional)
 
 ---
 Quick Start Instructions
 ------------
 ```
 #On Ansible Host
-$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_cloud_init
+$ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_proxmox
 $ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_proxmox_admin
 $ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
 
@@ -81,7 +75,7 @@ Requirements
 ##### PLAYBOOK REQUIREMENTS
 - A desired cloud-init user/pass for provisioning
 - A valid ssh key to be use for distributing to hosts via cloud-init
-- A valid Red Hat account with access to subscriptions
+- A valid Red Hat account with access to subscriptions 
 
 Dependencies
 ------------
@@ -93,13 +87,20 @@ Example Syntax
 ### To initially provision virtual machines:
 
 ```
+    To provision your whole inventory:
     ansible-playbook -i inventory/provision.yml site.yml
+
+    To provision to a specific host in your inventory:
+    ansible-playbook -i inventory/provision.yml site.yml --limit myhost
+
+    To provision to all hosts and exclude specific host in your inventory:
+    ansible-playbook -i inventory/provision.yml site.yml --limit '!myhost'
 ```
-### To unsubscribe and deprovision virtual machines
+### To unsubscribe RHEL servers from RHSM and deprovision virtual machines
 ```
     ansible-playbook -i inventory/provision.yml site.yml --tags never -e clean=true
 ```
-### To deprovision virtual machines 
+### To force deprovision virtual machines 
 ```
     ansible-playbook site.yml --tags never 
 ```
@@ -107,7 +108,7 @@ Example Syntax
 ```
     ansible-playbook -i inventory/dynamic.proxmox.yml my_other_playbook.yml 
 ```
-### You can also use the static inventory.yml for your inventory.
+### You can also use the static inventory.yml for follow up playbooks.
 ```
     ansible-playbook -i inventory/provision.yml yet_another_playbook.yml 
 ```
