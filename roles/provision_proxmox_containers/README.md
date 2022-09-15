@@ -2,6 +2,8 @@ provision_proxmox_vms
 =========
 
 A role to deploy LXC and LXD containers to a desired proxmox host
+The role will deploy a Rocky linux, Fedora, and Ubuntu server.  It will 
+configure a "cloud init user" and push their ssh key.
 
 Requirements
 ------------
