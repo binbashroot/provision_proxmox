@@ -53,7 +53,7 @@
                   ide:
                       ide0: "{{ cloud_init_storage|default('local-lvm:cloudinit,media=cdrom') }}"
                   ipconfig:
-                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ipaddress']| }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
+                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ipaddress'] }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
                   memory: "{{ hostvars[inventory_hostname]['ram']|default('2048') }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   net:
