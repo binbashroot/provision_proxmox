@@ -1,19 +1,16 @@
 ---
-- name:
-  debug:
-     var: ipaddr
+- name: Assert ipaddress and gateway vars are actual IP addresses
+  assert:
+    that: 
+     - hostvars[inventory_hostname]['ansible_host']|ansible.utils.ipaddr('address')
+     - hostvars[inventory_hostname]['ipaddress']|ansible.utils.ipaddr('address')
+     - hostvars[inventory_hostname]['gateway']|ansible.utils.ipaddr('address')
 
-- meta: end_play
-
-- name: Print debug warning
-  debug:
-    msg: |
-       {{ inventory_hostname }} does not have an OS tag defined in inventory file
-       Skipping {{ inventory_hostname }}
-  when: hostvars[inventory_hostname]['tags'] is undefined
-
-- meta: end_host
-  when: hostvars[inventory_hostname]['tags'] is undefined
+- name: Assert a tag exist that matches an available qcow image
+  assert: 
+    that:
+      - hostvars[inventory_hostname]['tags'] is defined
+      - hostvars[inventory_hostname]['tags']|intersect(qcow_images|map(attribute='name'))
 
 - name: Set image to use
   ansible.builtin.set_fact:
@@ -56,7 +53,7 @@
                   ide:
                       ide0: "{{ cloud_init_storage|default('local-lvm:cloudinit,media=cdrom') }}"
                   ipconfig:
-                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ipaddress'] }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
+                      ipconfig0: "ip={{ hostvars[inventory_hostname]['ipaddress']| }},gw={{ hostvars[inventory_hostname]['gateway'] }}"          
                   memory: "{{ hostvars[inventory_hostname]['ram']|default('2048') }}"
                   name: "{{ inventory_hostname }}.{{ domain }}"
                   net:
