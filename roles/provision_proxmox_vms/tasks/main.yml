@@ -6,7 +6,7 @@
      - hostvars[inventory_hostname]['ipaddress']|ansible.utils.ipaddr('address')
      - hostvars[inventory_hostname]['gateway']|ansible.utils.ipaddr('address')
 
-- name: Assert a tag exist that matches an available qcow image
+- name: Assert a tag exists that matches an available qcow image
   assert: 
     that:
       - hostvars[inventory_hostname]['tags'] is defined
