@@ -62,7 +62,7 @@
                   node: "{{ proxmox_node }}"
                   numa_enabled: "{{ hostvars[inventory_hostname]['numa']|default('yes') }}"
                   onboot: "{{ hostvars[inventory_hostname]['onboot']|default('no') }}"
-                  searchdomains: "{{ domain|default(omit) }}"
+                  searchdomains: "{{ domain }}"
                   scsihw: virtio-scsi-pci
                   sshkeys: "{{ cloud_init_public_key }}"
                   tags: "{{ hostvars[inventory_hostname]['tags']|list }}"
