@@ -1,4 +1,10 @@
 ---
+- name:
+  debug:
+     var: ipaddr
+
+- meta: end_play
+
 - name: Print debug warning
   debug:
     msg: |
@@ -44,7 +50,7 @@
                   bios: "{{ hostvars[inventory_hostname]['bios']|default('seabios') }}"
                   ciuser: "{{ cloud_init_user }}"
                   cipassword: "{{ cloud_init_pass }}"
-                  cores: "{{ hostvars[inventory_hostname]['cores'] }}"
+                  cores: "{{ hostvars[inventory_hostname]['cores']|default('1') }}"
                   cpu: "{{ hostvars[inventory_hostname]['cpu_type']|default('host') }}"
                   hotplug: 'network,cpu,memory,disk'
                   ide:
@@ -59,7 +65,7 @@
                   node: "{{ proxmox_node }}"
                   numa_enabled: "{{ hostvars[inventory_hostname]['numa']|default('yes') }}"
                   onboot: "{{ hostvars[inventory_hostname]['onboot']|default('no') }}"
-                  searchdomains: "{{ domain }}"
+                  searchdomains: "{{ domain|default(omit) }}"
                   scsihw: virtio-scsi-pci
                   sshkeys: "{{ cloud_init_public_key }}"
                   tags: "{{ hostvars[inventory_hostname]['tags']|list }}"
