@@ -3,6 +3,8 @@
   gather_facts: false
   collections:
        community.general
+       ansible.utils
+       
   pre_tasks:
      - name: Assert that vars required for lookup exist
        ansible.builtin.assert:
