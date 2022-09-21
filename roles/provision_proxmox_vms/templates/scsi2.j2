@@ -1,1 +1,0 @@
-{% if vmid_info['scsi_second_disk_size'] %}/usr/sbin/qm set {{ vmid_info['vmid'] }} --scsi1 {{ proxmox_storage|default('local-lvm') }}:vm-{{ vmid_info['vmid'] }}-disk-2:{{ scsi_second_disk_size }}{% endif %}
