@@ -1,5 +1,9 @@
 # THIS IS AN EXAMPLE YAML ANSIBLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
 # USED AT YOUR DISCRETION. YMMV
+# 
+# TAGS are using to determine the OS of the host to be provisioned. 
+# RHEL hosts with an tag of "autosubscribe" will also attempt to register to RH with subscription-manager
+# A host must have a valid tag that matches a choice in the qcow_images variable in the defaults/main.yml file
 #
 # ---
 # virtual_machines:
@@ -23,6 +27,7 @@
 #         disk3: 'local-lvm:5'
 #         disk4: 'local-lvm:5'
 #         tags:
+#           - autosubscribe  
 #           - rhel9
 #           - rhel
 #           - controller

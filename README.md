@@ -1,7 +1,7 @@
 Provision Proxmox VMs
 =========
 
-A project to deploy Red Hat subscribed virtual machines to a desired proxmox host via Ansible  
+A project to deploy virtual machines to a desired proxmox host via Ansible.  Currently only linux distributions are supported at this time.  Windows should be doable, but nothing on my roadmp at this time.
 #### **How it works:**
 A cloud-init ready base vm with NO OS using a 2g ide "boot" disk is created.  
 Imports a KVM cloud image as a new disk to the vm.  
@@ -15,7 +15,8 @@ Attaches a Red Hat subscription (Optional)
 Quick Start Instructions
 ------------
 ```
-#On Ansible Host
+# On Ansible Host
+----------------
 $ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_proxmox
 $ ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_proxmox_admin
 $ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
@@ -23,15 +24,20 @@ $ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
 #Connect to Proxmox Server
 $ ssh -i ~/.ssh/id_proxmox_admin YOURADMINUSER@proxmox.example.com
 
-#On Proxmox Server
-# pvesm add dir qcow_images --path /opt/qcow_images
-# exit
-
-Download RHEL QCOW images from access.redhat.com and upload them to your Proxmox server.
+On Proxmox Server download RHEL QCOW images from access.redhat.com and/or other sites, and upload them to your Proxmox server.
 Be sure the images are resided in the /opt/qcow_images/images dir
 Take Note of the file names you downloaded
+Ensure proper permissions
+----------------
+# pvesm add dir qcow_images --path /opt/qcow_images
+# cd /opt/qcow/images/images
+# wget http://path/to/remote/images
+# exit
 
-On Ansible Host
+
+
+# On Ansible Host
+----------------
 $ git clone https://github.com/binbashroot/provision_promox.git
 $ set +o history
 $ export PROXMOX_PASSWORD='*******'
@@ -42,7 +48,7 @@ $ export REDHAT_USER='jdoe@duck.com'
 $ cd provision_proxmox
 $ cp inventory/example_provision_inventory.yml inventory/provision.yml
 $ vi inventory/provision.yml
-Edit the inventory so it has your desired settings
+Edit the inventory so it has your desired settings.  
 
 
 ```
@@ -59,7 +65,8 @@ Requirements
 ##### PYTHON REQUIREMENTS
 - proxmoxer==1.3.1
 - requests==2.28.1
-
+- passlib==1.7.4
+- netaddr==0.8.0
 ##### PROXMOX REQUIREMENTS
 - Working proxmox environment
 - A defined directory on proxmox server for qcow images 
@@ -68,6 +75,7 @@ Requirements
 
 ##### ANSIBLE REQUIREMENTS
 - The community.general collection is installed
+- The ansible.utils collection is installed
 - The ansible.posix collection is installed
 - Path for the private_key_file variable in the included ansible.cfg file is correct. 
 - A valid [inventory](inventory/example_provision_inventory.yml)
@@ -121,20 +129,32 @@ Example Playbook
 - hosts: virtual_machines
   gather_facts: false
   collections:
-       community.general
+    community.general
+    ansible.utils
   pre_tasks:
-     - name: Ensure netaddr python module is installed
-       ansible.builtin.pip:
-           name: netaddr
-           extra_args: --user 
+    - name: Ensure netaddr python module is installed
+      ansible.builtin.pip:
+        name: netaddr
+        extra_args: --user 
   roles:
-     - provision_proxmox_vms
+    - provision_proxmox_vms
 ```
+
+Document Support Links  
+---------  
+[Ansible](https://docs.ansible.com/)  
+[Proxmox](https://pve.proxmox.com/pve-docs/)
 
 License
 -------
 
 MIT
+
+Contributors:
+---------
+Thanks to my friends/coworkers who have made this project fun.  
+[mdidato](https://github.com/mdidato)  
+[randyoyarzabal](https://github.com/randyoyarzabal)   
 
 Author Information
 ------------------
