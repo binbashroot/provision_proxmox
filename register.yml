@@ -1,71 +1,49 @@
 ---
-- hosts: virtual_machines 
+- hosts: "{{ target }}"
   gather_facts: True
   become: True
+  vars:
+    redhat_user: "{{ lookup('env','REDHAT_USER') }}"
+    redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
   tasks:
+    - ansible.builtin.assert:
+        that:
+          - redhat_user is defined 
+          - redhat_pass is defined 
+          - redhat_user|length > 0
+          - redhat_pass|length > 0
+
     - meta: end_host
       when: 
         - ansible_distribution is defined 
         - ansible_distribution|lower != "redhat"
 
-    - block:
+    - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
+      community.general.redhat_subscription:
+          state: present
+          username: "{{ redhat_user }}"
+          password: "{{ redhat_pass }}"
+          auto_attach: true
 
-        - name: Register to Red Hat for subscriptions and auto-subscribe to available content.
-          community.general.redhat_subscription:
-              state: present
-              username: "{{ redhat_user }}"
-              password: "{{ redhat_pass }}"
-              auto_attach: true
-
-        - name: install packages for language locale
-          yum:
-            name:
-              - glibc-langpack-en
-          when:
-              - ansible_distribution_major_version|int >= 8
-
-        - name: Update packages
-          yum:
-            name: '*'
-            state: latest
-
-        - name: Check if server needs rebooting
-          ansible.builtin.shell: /usr/bin/needs-restarting -r
-          failed_when: false
-          register: __reboot_required
-
-        - name: Reboot server
-          ansible.builtin.reboot:
-          when: __reboot_required['rc']|int == 1           
-
-        - name: Enable the AAP2 repo for the controller host
-          ansible.builtin.rhsm_repository:
-              name: ansible-automation-platform-2.2-for-rhel-9-x86_64-rpms
-              state: enabled
-          when: 
-             - "'controller' in provision_tags"
-             - ansible_distribution_major_version|int >= 9
-
-        - name: Install ansible-core on the controller
-          yum:
-            name: 
-              - ansible-core
-              - ansible-collection-redhat-rhel_mgmt
-          when: 
-             - "'controller' in provision_tags"
-             - ansible_distribution_major_version|int >= 9
-    
+    - name: install packages for language locale
+      yum:
+        name:
+          - glibc-langpack-en
       when:
-          - redhat_user is defined 
-          - redhat_pass is defined 
+          - ansible_distribution_major_version|int >= 8
 
-    # - name: Change the remote user password to something random since we know ssh keys work
-    #   ansible.builtin.user:
-    #           name: "{{ cloud_init_user  }}"
-    #           password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation length=15 encrypt=sha512_crypt' ) }}"
+    - name: Update packages
+      yum:
+        name: '*'
+        state: latest
 
-    - name: Print reminder
-      debug:
-         msg: 
-           - "Remember to add your newly provisioned hosts to DNS"
-      run_once: True
+    - name: Check if server needs rebooting
+      ansible.builtin.shell: /usr/bin/needs-restarting -r
+      failed_when: false
+      register: __reboot_required
+
+    - name: Reboot server
+      ansible.builtin.reboot:
+      when: __reboot_required['rc']|int == 1           
+
+    

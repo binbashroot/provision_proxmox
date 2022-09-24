@@ -3,16 +3,16 @@
 cloud_init_user: "{{ lookup('env','USER') }}"
 cloud_init_pass: "{{ proxmox_api_pass }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_rsa_proxmox.pub') }}"
-cloud_init_private_key: ~/.ssh/id_rsa_proxmox
+cloud_init_private_key_file: ~/.ssh/id_rsa_proxmox
 
-domain: example.com
+#domain: example.com
 
 proxmox_admin_key: ~/.ssh/id_proxmox_admin
 proxmox_admin_ssh_user: root
 proxmox_api_host: "{{ lookup('env','PROXMOX_HOST') }}"
 proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
-proxmox_node: proxmox 
+proxmox_node: proxmox
 
 redhat_user: "{{ lookup('env','REDHAT_USER') }}"
 redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
@@ -22,13 +22,20 @@ qcow_image_path: /opt/qcow_images/images
 qcow_images:
 
   - name: rhel7
-    qcow_file: rhel-server-7.9-x86_64-kvm.qcow2
+    qcow_file: rhel-server-7.9-update-12-x86_64-kvm.qcow2
 
   - name: rhel8
     qcow_file: rhel-8.6-x86_64-kvm.qcow2
 
   - name: rhel9
     qcow_file: rhel-baseos-9.0-x86_64-kvm.qcow2
+
+  - name: ubuntu18
+    qcow_file: bionic-server-cloudimg-amd64.qcow2
+
+  - name: ubuntu20
+    qcow_file: focal-server-cloudimg-amd64.qcow2
+
 
 virtual_machine_nameservers:
     - 192.168.1.100

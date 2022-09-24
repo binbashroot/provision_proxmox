@@ -1,8 +1,19 @@
-# THIS IS AN EXAMPLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
+# THIS IS AN EXAMPLE YAML ANSIBLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
 # USED AT YOUR DISCRETION. YMMV
+# 
+# TAGS are using to determine the OS of the host to be provisioned. 
+# RHEL hosts with an tag of "autosubscribe" will also attempt to register to RH with subscription-manager
+# A host must have a valid tag that matches a choice in the qcow_images variable in the defaults/main.yml file
 #
 # ---
 # virtual_machines:
+##APPLY GROUP VARS HERE
+# vars:
+#   redhat_user: "{{ lookup('env','REDHAT_USER') }}"
+#   redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
+#   virtual_mahcine_nameservers:
+#       - 192.168.1.1
+#       - 192.168.2.1
 #   hosts:
 #     ansible:
 #         ansible_host: 10.0.1.100
@@ -10,62 +21,72 @@
 #         gateway: 10.0.1.1
 #         cores: 1
 #         ram: 2048
+#         onboot: yes       
 # Format for disk is disk location and size
 #         disk2: 'local-lvm:5'
 #         disk3: 'local-lvm:5'
 #         disk4: 'local-lvm:5'
 #         tags:
+#           - autosubscribe  
 #           - rhel9
 #           - rhel
 #           - controller
-
+#           - podman
+#
 #     satellite:
 #         ansible_host: 10.0.1.101
 #         ipaddress: "{{ ansible_host }}/24"
 #         gateway: 10.0.1.1
 #         cores: 1
+#         onboot: yes       
 #         ram: 2048
 #         tags:
 #           - rhel8
 #           - rhel
 #           - server
 #           - dev
-
+#
 #     servera:
 #         ansible_host: 10.0.1.102
 #         ipaddress: "{{ ansible_host }}/24"
 #         gateway: 10.0.1.1
 #         cores: 1
+#         onboot: yes       
 #         ram: 2048     
 #         tags:
-#             - rhel
-#             - rhel9
-
+#             - ubuntu
+#             - ubuntu20
+#             - nginx
+#
 #     serverb:
 #         ansible_host: 10.0.1.103
 #         ipaddress: "{{ ansible_host }}/24"
 #         gateway: 10.0.1.1
 #         cores: 1
+#         onboot: yes       
 #         ram: 2048     
 #         tags:
 #             - rhel
 #             - rhel8
-
+#
 #     serverd:
 #         ansible_host: 10.0.1.104
 #         ipaddress: "{{ ansible_host }}/24"
 #         gateway: 10.0.1.1
 #         cores: 1
+#         onboot: yes       
 #         ram: 2048     
 #         tags:
 #             - rhel
+#             - splunk
 #             - rhel8
-
+#
 #     servere:
 #         ansible_host: 10.0.1.105
 #         ipaddress: "{{ ansible_host }}/24"
 #         gateway: 10.0.1.1
 #         cores: 1
+#         onboot: yes       
 #         ram: 2048     
 #         tags:
 #             - rhel

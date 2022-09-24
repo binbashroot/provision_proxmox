@@ -1,8 +1,10 @@
 ---
-- hosts: virtual_machines
+- hosts: "{{ target | default('virtual_machines') }}"
   gather_facts: false
   collections:
        community.general
+       ansible.utils
+       
   pre_tasks:
      - name: Assert that vars required for lookup exist
        ansible.builtin.assert:
@@ -13,22 +15,19 @@
             - proxmox_api_host is defined 
             - proxmox_api_user is defined 
             - proxmox_api_pass is defined 
-            - redhat_user is defined 
-            - redhat_pass is defined 
+            - cloud_init_user|length > 0
+            - cloud_init_pass|length > 0
+            - cloud_init_public_key|length > 0
+            - proxmox_api_host|length > 0
+            - proxmox_api_user|length > 0
+            - proxmox_api_pass|length > 0
        tags:
          - always
  
-
-     - name: Ensure netaddr python module is installed if not in a virtual environment
-       ansible.builtin.pip:
-           name: netaddr
-           extra_args: "{{ omit if lookup('env','VIRTUAL_ENV') is defined  else '--user' }}"
-       delegate_to: localhost
-       run_once: True
-
   roles:
      - provision_proxmox_vms
 
+<<<<<<< HEAD
 
 - hosts: containers
   gather_facts: false
@@ -65,3 +64,4 @@
 #      - groups['newrhelservers']|length > 0
 
     
+>>>>>>> 8fa294b6adc2ce0cca4d547dc6a899e4d02534fd
