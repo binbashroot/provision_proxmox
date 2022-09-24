@@ -31,7 +31,7 @@ Ensure proper permissions
 ----------------
 # pvesm add dir qcow_images --path /opt/qcow_images
 # cd /opt/qcow/images/images
-# wget http://path/to/remote/images
+# wget http://path/to/remote/images/${IMAGE_NAME}
 # exit
 
 
@@ -49,6 +49,7 @@ $ cd provision_proxmox
 $ cp inventory/example_provision_inventory.yml inventory/provision.yml
 $ vi inventory/provision.yml
 Edit the inventory so it has your desired settings.  
+Run ansible against your inventory.  See example syntax below.
 
 
 ```
