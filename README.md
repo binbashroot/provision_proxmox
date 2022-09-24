@@ -9,7 +9,10 @@ Sets newly imported disk as the vm boot device.
 Remove and deletes the 2G ide disk that vm was initially created with.
 Set KVM cloud image disk as the "boot" disk.  
 Starts vm  
-Attaches a Red Hat subscription (Optional)
+Attaches a Red Hat subscription (Optional)    
+
+**NOTE:**   
+To provision Proxmox containers refer to [Provision Proxmox Containers](roles/provision_proxmox_containers/README.md)
 
 ---
 Quick Start Instructions
