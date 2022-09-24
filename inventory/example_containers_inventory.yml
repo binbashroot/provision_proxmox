@@ -1,0 +1,36 @@
+# ---
+
+# containers:
+#   vars:  
+#     domain: example.com
+#     onboot: true
+#     ansible_ssh_private_key_file: ~/.ssh/id_rsa_proxmox
+#     container_nameserver:
+#         - 192.168.1.6
+
+#   hosts:
+#     larry.example.com:
+#         ansible_host: 192.168.1.220
+#         cores: 2
+#         cpuunits: 1000
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: "{{ ansible_host.split('.')[0:3]|join('.') + '.1' }}"
+#         ostemplate: fedora-36-default_20220622_amd64.tar.xz
+#         net0: "name=eth0,bridge=vmbr0,firewall=1{{ lookup('template','vlan.j2') }}"
+#         vmid: 800
+
+#     moe.example.com:
+#         ansible_host: 192.168.1.221
+#         cores: 1
+#         gateway: "{{ ansible_host.split('.')[0:3]|join('.') + '.1' }}"
+#         ipaddress: "{{ ansible_host }}/24"
+#         ostemplate: ubuntu
+#         vmid: 801
+
+#     curly.example.com:
+#         ansible_host: 192.168.1.222
+#         gateway: "{{ ansible_host.split('.')[0:3]|join('.') + '.1' }}"
+#         ipaddress: "{{ ansible_host }}/24"
+#         ostemplate: alpine-3.16-default_20220622_amd64.tar.xz
+#         vmid: 802
+

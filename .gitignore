@@ -10,3 +10,4 @@ images/
 *.tar.gz
 inventory/provision.yml
 inventory/dynamic.proxmox.yml
+inventory/containers_inventory.yml

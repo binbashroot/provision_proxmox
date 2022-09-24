@@ -2,10 +2,8 @@
 # defaults file for provision_proxmox_containers
 cloud_init_user: "{{ lookup('env','USER') }}"
 cloud_init_pass: "{{ proxmox_api_pass }}"
-cloud_init_public_key: "{{ lookup('file','~/.ssh/id_cloud_init.pub') }}"
-cloud_init_private_key: ~/.ssh/id_cloud_init
-
-domain: scuderiadidato.com
+cloud_init_public_key: "{{ lookup('file','~/.ssh/id_rsa_proxmox.pub') }}"
+cloud_init_private_key_file: ~/.ssh/id_rsa_proxmox
 
 proxmox_admin_key: ~/.ssh/id_proxmox_admin
 proxmox_admin_ssh_user: root

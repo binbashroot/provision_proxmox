@@ -30,8 +30,7 @@ Role Variables
 | pmsize | string | 2 |
 | proxmox_storage| string | local-lvm |
 | virtual_machine_nameservers | list | 192.168.1.100, 192.168.1.200 | 
-| virtual_machines | dict | ***See defaults/main.yml*** |
-
+| virtual_machines | dict | ***See inventory/example_provision_inventory.yml*** |
 
 Dependencies
 ------------
@@ -44,11 +43,11 @@ Example Syntax
 ```
 To provision virtual machines:
 
-    ansible-playbook site.yml
+    ansible-playbook containers.yml
 
 To deprovision virtual machines:
 
-    ansible-playbook site.yml --tags never 
+    ansible-playbook containers.yml --tags never 
 
 ```
 
