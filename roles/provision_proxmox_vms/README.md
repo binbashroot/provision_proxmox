@@ -1,14 +1,23 @@
 provision_proxmox_vms
 =========
 
-A role to deploy Red Hat subscribed virtual machines to a desired proxmox host
+A role to deploy virtual machines to a desired proxmox host and autosubscribe Red Hat hosts. 
 
 Requirements
 ------------
 
 - The community.general collection is installed
 - Working proxmox environment
-- A dedicated directory on proxmox server for qcow images 
+- A dedicated directory on proxmox server for qcow images with the following image names  
+
+| Operating system | File name |   
+---|---  
+|rhel7| rhel-server-7.9-update-12-x86_64-kvm.qcow2 |
+|rhel8| rhel-8.6-x86_64-kvm.qcow2 |
+|rhel9| rhel-baseos-9.0-x86_64-kvm.qcow2 |
+|ubuntu18| bionic-server-cloudimg-amd64.qcow2 |
+|ubuntu20| focal-server-cloudimg-amd64.qcow2 |
+
 - A valid proxmox user/pass with admin rights with api access
 - A valid proxmox user/pass with admin rights with ssh access
 - A desired cloud-init user/pass for provisioning
@@ -30,9 +39,11 @@ Role Variables
 | pmsize | string | 2 |
 | proxmox_storage| string | local-lvm |
 | qcow_image_path | string | /opt/qcow_images/images |
-| rhel7_image | string | rhel-server-7.9-x86_64-kvm.qcow2 |
-| rhel8_image | string | rhel-8.6-x86_64-kvm.qcow2 |
-| rhel9_image | string | rhel-baseos-9.0-x86_64-kvm.qcow2 |
+| rhel7 | string | rhel-server-7.9-update-12-x86_64-kvm.qcow2 |
+| rhel8 | string | rhel-8.6-x86_64-kvm.qcow2 |
+| rhel9 | string | rhel-baseos-9.0-x86_64-kvm.qcow2 |
+| ubuntu18 | string |bionic-server-cloudimg-amd64.qcow2 |
+| ubuntu20 | string |focal-server-cloudimg-amd64.qcow2 |
 | virtual_machine_nameservers | list | 192.168.1.100, 192.168.1.200 | 
 | virtual_machines | dict | ***See inventory/example_provision_inventory.yml*** |
 
@@ -69,6 +80,7 @@ Example Playbook
   gather_facts: false
   collections:
        community.general
+       ansible.utils
   roles:
      - provision_proxmox_vms
 
