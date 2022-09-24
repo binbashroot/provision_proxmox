@@ -23,15 +23,15 @@ $ ssh-copy-id -i .ssh/id_proxmox_admin.pub YOURADMINUSER@proxmox.example.com
 
 #Connect to Proxmox Server
 $ ssh -i ~/.ssh/id_proxmox_admin YOURADMINUSER@proxmox.example.com
-
-On Proxmox Server download RHEL QCOW images from access.redhat.com and/or other sites, and upload them to your Proxmox server.
-Be sure the images are resided in the /opt/qcow_images/images dir
-Take Note of the file names you downloaded
-Ensure proper permissions
-----------------
 # pvesm add dir qcow_images --path /opt/qcow_images
 # cd /opt/qcow/images/images
 # wget http://path/to/remote/images/${IMAGE_NAME}
+*** NOTE ***
+RHEL qcow2 images can be found at access.redhat.com
+Ubuntu qcow2 images can be fount at https://cloud-images.ubuntu.com/releases/.
+Be sure the downloaded images reside in the /opt/qcow_images/images dir as their final location.
+Be sure file names you download are in the the default/main.yml of the provision_proxmo_vms role.
+*** END NOTE ***
 # exit
 
 
