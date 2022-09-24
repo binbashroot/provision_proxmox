@@ -45,6 +45,37 @@
   when: inventory_hostname == item
   loop: "{{ ansible_play_hosts }}"
 
+- name: install sshd
+  ansible.builtin.shell: |
+          lxc-attach -n "{{ hostvars[inventory_hostname]['vmid'] }}" -- yum install -y openssh-server
+          lxc-attach -n "{{ hostvars[inventory_hostname]['vmid'] }}" -- systemctl start sshd
+  delegate_to: "{{ proxmox_node }}.{{ domain }}"
+  vars: 
+      ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
+      ansible_ssh_private_key: "{{ proxmox_admin_key }}"
+  when: inventory_hostname == "rocky" or inventory_hostname == "fedora"
+
+- name: create cloud init user
+  ansible.builtin.user:
+    name: "{{ cloud_init_user }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa  
+  vars: 
+      ansible_ssh_user: root
+      ansible_ssh_private_key: "{{ cloud_init_private_key }}"
+
+- name: Set authorized key for cloud init user
+  ansible.posix.authorized_key:
+    user: "{{ cloud_init_user }}"
+    state: present
+    key: "{{ cloud_init_public_key }}"
+  vars: 
+      ansible_ssh_user: root
+      ansible_ssh_private_key: "{{ cloud_init_private_key }}"
+
+
+
 - name: Cleanup when needed
   block:
      - name: stop the containers
