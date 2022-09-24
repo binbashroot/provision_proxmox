@@ -11,7 +11,7 @@
 # vars:
 #   redhat_user: "{{ lookup('env','REDHAT_USER') }}"
 #   redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
-#   virtual_mahcine_nameservers:
+#   virtual_machine_nameservers:
 #       - 192.168.1.1
 #       - 192.168.2.1
 #   hosts:
