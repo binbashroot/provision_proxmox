@@ -156,14 +156,14 @@
             delay: 20
           connection: local
           when: 
+            - __vm_start_status is defined and __vm_start_status is changed
             - redhat_user is defined
             - redhat_user|length > 0
             - redhat_pass is defined
             - redhat_pass|length > 0
-            - __vm_start_status is changed
-            - inventory_hostname['tags'] is defined 
-            - "'rhel' in inventory_hostname['tags']"
-            - "'autosubscribe' in inventory_hostname['tags']"
+            - tags is defined 
+            - "'rhel' in tags"
+            - "'autosubscribe' in tags"
 
         - name: "[ Block Task ] - Register RHEL hosts to Red Hat using the raw module and truncate sudo log"
           raw: |
@@ -180,11 +180,11 @@
           become: True
           failed_when: false
           when:
+            - __vm_start_status is defined and __vm_start_status is changed
             - redhat_user is defined
             - redhat_user|length > 0
             - redhat_pass is defined
             - redhat_pass|length > 0
-            - __vm_start_status is changed
             - tags is defined 
             - "'rhel' in tags"
             - "'autosubscribe' in tags"
