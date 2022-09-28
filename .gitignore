@@ -8,5 +8,6 @@ images/
 .vault*
 *.tgz
 *.tar.gz
-inventory/provision.yml
-inventory/dynamic.proxmox.yml
+!inventory/
+inventory/*
+!inventory/example*.yml
