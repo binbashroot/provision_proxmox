@@ -1,0 +1,21 @@
+---
+# tasks file for provision_proxmox_dns_container 
+- name: "Install named "
+  ansible.builtin.shell: |
+      {{ lookup('template','install_named.j2') }}
+  register: install_sshd
+  delegate_to: "{{ proxmox_node }}"
+  vars: 
+      ansible_ssh_user: root
+      ansible_ssh_private_key: "{{ cloud_init_private_key_file }}"
+
+- name: Update /etc/sysconfig/named file
+  ansible.builtin.lineinfile:
+    regexp: '^NAMEDCONF(.*)$'
+    line: 'NAMEDCONF=/mnt/named/named.conf'
+    path: /etc/sysconfig/named
+  notify: Enable named
+  delegate_to: "{{ ansible_host }}"
+  vars:
+      ansible_ssh_user: root
+      ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
