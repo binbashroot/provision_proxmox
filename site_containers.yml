@@ -26,5 +26,5 @@
  
   roles:
      - provision_proxmox_containers
-     - role: container_dns
+     - role: provision_proxmox_dns_container
        when: "'dns' in tags"

@@ -12,5 +12,5 @@ images/
 inventory/*
 !inventory/example*.yml
 !roles/
-roles/*
+roles/provision*
 !roles/test_*
