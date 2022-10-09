@@ -1,0 +1,11 @@
+{% if ostemplate.split('-')[0]|lower in yum_variants %}
+lxc-attach -n {{ vmid }} -- yum install -y openssh-server && \
+lxc-attach -n {{ vmid }} -- systemctl start sshd  
+{% elif ostemplate.split('-')[0]|lower in apt_variants %}
+{# ubuntu containers come with ssh installed already #}
+lxc-attach -n {{ vmid }} -- systemctl start sshd 
+{% elif ostemplate.split('-')[0]|lower in apk_variants %}
+lxc-attach -n {{ vmid }} --  apk add openssh && \
+lxc-attach -n {{ vmid }} -- rc-update add sshd && \
+lxc-attach -n {{ vmid }} -- service sshd start
+{% endif %}

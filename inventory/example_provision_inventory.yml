@@ -1,5 +1,9 @@
 # THIS IS AN EXAMPLE YAML ANSIBLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
 # USED AT YOUR DISCRETION. YMMV
+# 
+# TAGS are using to determine the OS of the host to be provisioned. 
+# RHEL hosts with an tag of "autosubscribe" will also attempt to register to RH with subscription-manager
+# A host must have a valid tag that matches a choice in the qcow_images variable in the defaults/main.yml file
 #
 # ---
 # virtual_machines:
@@ -7,7 +11,7 @@
 # vars:
 #   redhat_user: "{{ lookup('env','REDHAT_USER') }}"
 #   redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
-#   virtual_mahcine_nameservers:
+#   virtual_machine_nameservers:
 #       - 192.168.1.1
 #       - 192.168.2.1
 #   hosts:
@@ -23,6 +27,7 @@
 #         disk3: 'local-lvm:5'
 #         disk4: 'local-lvm:5'
 #         tags:
+#           - autosubscribe  
 #           - rhel9
 #           - rhel
 #           - controller
@@ -86,3 +91,32 @@
 #         tags:
 #             - rhel
 #             - rhel7
+#
+# containers:
+#   hosts:
+#     centos8:
+#         ansible_host: 192.168.254.225
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 192.168.254.254
+#         cores: 1
+#         ram: 2048
+#         ostemplate: centos-8-default_20201210_amd64.tar.xz
+#         vmid: 1000
+#
+#     fedora:
+#         ansible_host: 192.168.254.226
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 192.168.254.254
+#         cores: 1
+#         ram: 2048
+#         ostemplate: fedora-36-default_20220622_amd64.tar.xz
+#         vmid: 1001
+#
+#     ubuntu:
+#         ansible_host: 192.168.254.227
+#         ipaddress: "{{ ansible_host }}/24"
+#         gateway: 192.168.254.254
+#         cores: 1
+#         ram: 2048
+#         ostemplate: ubuntu-22.04-standard_22.04-1_amd64.tar.zst
+#         vmid: 1002
