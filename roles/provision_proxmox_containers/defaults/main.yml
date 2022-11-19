@@ -10,7 +10,7 @@ proxmox_admin_ssh_user: root
 proxmox_api_host: "{{ lookup('env','PROXMOX_HOST') }}"
 proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
-proxmox_node: proxmox 
+proxmox_node: proxmox
 
 
 
