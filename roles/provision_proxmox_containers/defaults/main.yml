@@ -12,8 +12,6 @@ proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
 proxmox_node: proxmox
 
-
-
 virtual_machine_nameservers:
     - 192.168.1.100
     - 192.168.1.200
