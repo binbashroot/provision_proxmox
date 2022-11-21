@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - community.general
+    - ansible.utils
+  vars:
+    proxmox_api_host: proxmox3.example.com
+    proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+    proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
+    proxmox_node: proxmo3
+  tasks:
+    - name: "[ Block Rescue Task ] - Delete VM"
+      community.general.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_pass }}"
+        vmid: "{{ vmid }}"
+        node: "{{ proxmox_node }}"
+        state: absent
+        force: true
+      loop:
+        - 105
+      loop_control:
+        loop_var: vmid

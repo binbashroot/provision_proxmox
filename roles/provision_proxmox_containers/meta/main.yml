@@ -1,7 +1,7 @@
 galaxy_info:
   author: Michael DiDato
   description: Proxmox Lab Provisioning containers
-  company: Red Hat 
+  company: Red Hat
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
@@ -30,9 +30,9 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-      - 7
-      - 8
-      - 9
+        - 7
+        - 8
+        - 9
   # - name: SomePlatform
   #   versions:
   #   - all
@@ -53,5 +53,5 @@ dependencies: []
   # if you add dependencies to this list.
 
 collections:
-     - community.general
-     - ansible.utils
+  - community.general
+  - ansible.utils

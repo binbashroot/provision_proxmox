@@ -2,27 +2,26 @@
 - hosts: "{{ target | default('virtual_machines') }}"
   gather_facts: false
   collections:
-       community.general
-       ansible.utils
-       
+    - community.general
+    - ansible.utils
   pre_tasks:
-     - name: Assert that vars required for lookup exist
-       ansible.builtin.assert:
-          that:
-            - cloud_init_user is defined
-            - cloud_init_pass is defined
-            - cloud_init_public_key is defined
-            - proxmox_api_host is defined 
-            - proxmox_api_user is defined 
-            - proxmox_api_pass is defined 
-            - cloud_init_user|length > 0
-            - cloud_init_pass|length > 0
-            - cloud_init_public_key|length > 0
-            - proxmox_api_host|length > 0
-            - proxmox_api_user|length > 0
-            - proxmox_api_pass|length > 0
-       tags:
-         - always
- 
+    - name: Ensure variables exist before continuinng
+      ansible.builtin.assert:
+        that:
+          - cloud_init_pass is defined
+          - cloud_init_public_key is defined
+          - cloud_init_user is defined
+          - proxmox_api_host is defined
+          - proxmox_api_user is defined
+          - proxmox_api_pass is defined
+          - cloud_init_user|length > 0
+          - cloud_init_public_key|length > 0
+          - cloud_init_pass|length > 0
+          - proxmox_api_host|length > 0
+          - proxmox_api_user|length > 0
+          - proxmox_api_pass|length > 0
+        msg: "'my_param' must be between 0 and 100"
+  tags:
+    - always
   roles:
-     - provision_proxmox_vms
+    - provision_proxmox_vms
