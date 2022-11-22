@@ -5,7 +5,7 @@ cloud_init_pass: "{{ proxmox_api_pass }}"
 cloud_init_public_key: "{{ lookup('file','~/.ssh/id_rsa_proxmox.pub') }}"
 cloud_init_private_key_file: ~/.ssh/id_rsa_proxmox
 
-#domain: example.com
+# domain: example.com
 
 proxmox_admin_key: ~/.ssh/id_proxmox_admin
 proxmox_admin_ssh_user: root
@@ -38,5 +38,5 @@ qcow_images:
 
 
 virtual_machine_nameservers:
-    - 192.168.1.100
-    - 192.168.1.200
+  - 192.168.1.100
+  - 192.168.1.200

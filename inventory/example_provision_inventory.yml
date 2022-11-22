@@ -16,6 +16,7 @@
 #       - 192.168.2.1
 #   hosts:
 #     ansible:
+#         add_space: 40G    <-- Adds additional disk space during provisioning.
 #         ansible_host: 10.0.1.100
 #         ipaddress: "{{ ansible_host }}/24"
 #         gateway: 10.0.1.1

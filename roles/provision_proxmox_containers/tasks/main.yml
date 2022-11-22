@@ -1,69 +1,71 @@
 ---
 - name: Get the template if ostemplate var does not end with tar.gz
-  block: 
+  block:
 
-  - name: Get latest name for ostemplate variable
-    ansible.builtin.shell: |
+    - name: Get latest name for ostemplate variable
+      ansible.builtin.shell: |
         pveam available --section system |grep {{ ostemplate }} | tail -1
-    register: __latest_os_template
-    vars: 
-          ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-          ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
+      register: __latest_os_template
+      changed_when: false
+      vars:
+        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
+        ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
 
-  - name: Download the latest template for the request ostemplate variable
-    ansible.builtin.shell: |
-          pveam download local {{ (__latest_os_template['stdout_lines'][0]).split()[1] }}
-    vars: 
-          ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-          ansible_ssh_private_key: "{{ proxmox_admin_key }}"
-    register: __download_status
+    - name: Download the latest template for the request ostemplate variable
+      ansible.builtin.shell: |
+        pveam download local {{ (__latest_os_template['stdout_lines'][0]).split()[1] }}
+      changed_when: false
+      vars:
+        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
+        ansible_ssh_private_key: "{{ proxmox_admin_key }}"
+      register: __download_status
 
-  - name: reset ostemplate fact if we downloaded a file
-    ansible.builtin.set_fact:
-          ostemplate: "{{ (__latest_os_template['stdout_lines'][0]).split()[1] }}"
+    - name: reset ostemplate fact if we downloaded a file
+      ansible.builtin.set_fact:
+        ostemplate: "{{ (__latest_os_template['stdout_lines'][0]).split()[1] }}"
 
   delegate_to: "{{ proxmox_node }}"
-  when: 
+  when:
     - not ostemplate.endswith('.tar.xz')
 
 - name: Create container block
-  block: 
+  block:
 
-  - name: create containers
-    community.general.proxmox:
-      api_host: "{{ proxmox_api_host }}"
-      api_user: "{{ proxmox_api_user }}"
-      api_password: "{{ proxmox_api_pass }}"
-      cores: "{{ cores|default('1') }}"
-      cpus: "{{ cpu_type|default('1') }}"
-      cpuunits: "{{ cpuunits|default('500') }}"
-      disk: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('10') }}"
-      hostname: "{{ lookup('template','proxmox_vm_name.j2')|trim }}"
-      memory: "{{ ram|default('2048') }}"
-      mounts: "{{ mounts|default(omit) }}"
-      nameserver: "{{ container_nameserver[0] }}"
-      netif: 
-        "{'net0': 'name=eth0,ip={{ ipaddress }},gw={{ gateway }},bridge={{ bridge|default('vmbr0') }}' }"
-      node: "{{ proxmox_node }}"
-      onboot: "{{ onboot|default('yes') }}"
-      ostemplate: local:vztmpl/{{ ostemplate }}
-      pubkey: "{{ pubkey|default(cloud_init_public_key) }}"
-      searchdomain: "{{ domain|default(omit) }}"
-      storage: "{{ proxmox_storage|default('local-lvm') }}"
-      swap: "{{ swap|default('500') }}"
-      unprivileged: "{{ unprivileged|default('true') }}"
-      validate_certs: false
-      vmid: "{{ vmid|default(omit) }}"    
-    loop: "{{ ansible_play_hosts }}"
-    loop_control:
-      pause: 3 
-    register: __create_container_status
-    when: 
-      - inventory_hostname == item
-      - ostemplate is defined 
+    - name: create containers
+      community.general.proxmox:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_pass }}"
+        cores: "{{ cores|default('1') }}"
+        cpus: "{{ cpu_type|default('1') }}"
+        cpuunits: "{{ cpuunits|default('500') }}"
+        disk: "{{ proxmox_storage|default('local-lvm') }}:{{ pmsize|default('10') }}"
+        hostname: "{{ lookup('template','proxmox_vm_name.j2')|trim }}"
+        memory: "{{ ram|default('2048') }}"
+        mounts: "{{ mounts|default(omit) }}"
+        nameserver: "{{ container_nameserver[0] }}"
+        netif:
+          "{'net0': 'name=eth0,ip={{ ipaddress }},gw={{ gateway }},bridge={{ bridge|default('vmbr0') }}' }"
+        node: "{{ proxmox_node }}"
+        onboot: "{{ onboot|default('yes') }}"
+        ostemplate: local:vztmpl/{{ ostemplate }}
+        pubkey: "{{ pubkey|default(cloud_init_public_key) }}"
+        searchdomain: "{{ domain|default(omit) }}"
+        storage: "{{ proxmox_storage|default('local-lvm') }}"
+        swap: "{{ swap|default('500') }}"
+        unprivileged: "{{ unprivileged|default('true') }}"
+        validate_certs: false
+        vmid: "{{ vmid|default(omit) }}"
+      loop: "{{ ansible_play_hosts }}"
+      loop_control:
+        pause: 3
+      register: __create_container_status
+      when:
+        - inventory_hostname == item
+        - ostemplate is defined
 
-  - name: Start the containers
-    community.general.proxmox:
+    - name: Start the containers
+      community.general.proxmox:
         node: "{{ proxmox_node }}"
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_pass }}"
@@ -71,92 +73,94 @@
         state: started
         unprivileged: "{{ unprivileged|default('true') }}"
         vmid: "{{ hostvars[inventory_hostname]['vmid'] }}"
-    when: 
+      when:
         - inventory_hostname == item
         - __create_container_status is changed
-    loop: "{{ ansible_play_hosts }}"
+      loop: "{{ ansible_play_hosts }}"
 
   delegate_to: localhost
-  when: 
+  when:
     - ansible_host|ansible.utils.ipaddr('address')
     - ipaddress|ansible.utils.ipaddr('address')
     - gateway|ansible.utils.ipaddr('address')
-    - ostemplate is defined 
+    - ostemplate is defined
 
 - name: Basic user and services block
-  block: 
+  block:
 
-  - name: Pause a bit here to ensure containers are up enough before continuing
-    pause:
-       seconds: 15
+    - name: Pause a bit here to ensure containers are up enough before continuing
+      ansible.builtin.pause:
+        seconds: 15
 
-  - name: "Install sshd - Be patient here.  Sometimes it can take longer for some containers than others"
-    ansible.builtin.shell: |
-      {{ lookup('template','install_sshd.j2') }}
-    register: install_sshd
-    vars:
-      ansible_ssh_user:  "{{ proxmox_admin_ssh_user }}"   
-      ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
-      yum_variants:
+    - name: "Install sshd - Be patient here.  Sometimes it can take longer for some containers than others"
+      ansible.builtin.shell: |
+        {{ lookup('template','install_sshd.j2') }}
+      register: install_sshd
+      changed_when: false
+      vars:
+        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
+        ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
+        yum_variants:
           - fedora
           - rocky
           - alma
           - centos
 
-      apt_variants:
+        apt_variants:
           - ubuntu
           - debian
 
-      apk_variants:
+        apk_variants:
           - archlinux
           - alpine
 
-  - name: Create cloud init user
-    ansible.builtin.user:
-      name: "{{ cloud_init_user }}"
-      generate_ssh_key: yes
-      ssh_key_bits: 2048
-      ssh_key_file: .ssh/id_rsa  
+    - name: Create cloud init user
+      ansible.builtin.user:
+        name: "{{ cloud_init_user }}"
+        generate_ssh_key: true
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
 
-  - name: Set authorized key for cloud init user
-    ansible.posix.authorized_key:
-      user: "{{ cloud_init_user }}"
-      state: present
-      key: "{{ cloud_init_public_key }}"
+    - name: Set authorized key for cloud init user
+      ansible.posix.authorized_key:
+        user: "{{ cloud_init_user }}"
+        state: present
+        key: "{{ cloud_init_public_key }}"
 
   delegate_to: "{{ proxmox_node }}"
-  vars: 
-      ansible_ssh_user: root
-      ansible_ssh_private_key: "{{ cloud_init_private_key }}"
+  vars:
+    ansible_ssh_user: root
+    ansible_ssh_private_key: "{{ cloud_init_private_key_file }}"
 
-- name: Cleanup 
+- name: Cleanup
   block:
-     - name: Stop the containers
-       community.general.proxmox:
-         api_host: "{{ proxmox_api_host }}"
-         api_password: "{{ proxmox_api_pass }}"
-         api_user: "{{ proxmox_api_user }}"
-         node: "{{ proxmox_node }}"
-         state: stopped
-         unprivileged: true
-         vmid: "{{ vmid }}"
-       when: inventory_hostname == item
-       loop: "{{ ansible_play_hosts }}"
-       failed_when: false
 
-     - name: Delete the containers
-       community.general.proxmox:
-         api_host: "{{ proxmox_api_host }}"
-         api_password: "{{ proxmox_api_pass }}"
-         api_user: "{{ proxmox_api_user }}"
-         node: "{{ proxmox_node }}"
-         state: absent
-         unprivileged: true
-         vmid: "{{ vmid }}"
-       loop: "{{ ansible_play_hosts }}"
-       when: 
-          - inventory_hostname == item
+    - name: Stop the containers
+      community.general.proxmox:
+        api_host: "{{ proxmox_api_host }}"
+        api_password: "{{ proxmox_api_pass }}"
+        api_user: "{{ proxmox_api_user }}"
+        node: "{{ proxmox_node }}"
+        state: stopped
+        unprivileged: true
+        vmid: "{{ vmid }}"
+      when: inventory_hostname == item
+      loop: "{{ ansible_play_hosts }}"
+      failed_when: false
 
-  delegate_to: localhost 
+    - name: Delete the containers
+      community.general.proxmox:
+        api_host: "{{ proxmox_api_host }}"
+        api_password: "{{ proxmox_api_pass }}"
+        api_user: "{{ proxmox_api_user }}"
+        node: "{{ proxmox_node }}"
+        state: absent
+        unprivileged: true
+        vmid: "{{ vmid }}"
+      loop: "{{ ansible_play_hosts }}"
+      when:
+        - inventory_hostname == item
+
+  delegate_to: localhost
   tags:
     - never
