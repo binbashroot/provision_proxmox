@@ -40,3 +40,6 @@
 #     rhelservers: "'rhel' in (proxmox_tags_parsed|list)"
 # compose:
 #     ansible_port: 22
+#     ansible_port: ansible_host: proxmox_agent_interfaces[1].ip-addresses[0]|ansible.netcommon.ipaddr('address')
+#     my_special_var1: "'foobar'"
+#     my_special_var2: "'barfoo'"
