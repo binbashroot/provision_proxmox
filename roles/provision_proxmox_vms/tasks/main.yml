@@ -201,7 +201,7 @@
         node: "{{ proxmox_node }}"
         state: absent
         force: true
-      delegate_to: localhost:w!
+      delegate_to: localhost
 
 - name: Cleanup when needed
   block:
