@@ -3,6 +3,7 @@ if [ ${major_version} == '8' ];then
     {# we need to install python3 on rhel8 before we can actually do anything at all #}
     subscription-manager register --username {{ redhat_user }} --password {{ redhat_pass }}
     dnf install python3 -y
+    update-alternatives --remove python /usr/libexec/no-python
     {% if satellite_params is defined %}
     subscription-manager unregister 
     curl -k https://{{ satellite_params['baseurl'] }}/pub/bootstrap.py | python3 - -l {{ satellite_params['username'] }} \
