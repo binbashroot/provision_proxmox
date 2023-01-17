@@ -166,24 +166,7 @@
       #   - "'rhel' in tags"
       #   - "'autosubscribe' in tags"
 
-    - name: "[ Block Task ] - Register RHEL hosts to Red Hat using the raw module and truncate sudo log"
-      ansible.builtin.raw: |
-        {{ lookup('template','subscribe.j2') }}
-      vars:
-        ansible_ssh_user: "{{ cloud_init_user }}"
-        ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
-      become: true
-      failed_when: false
-      when:
-        - __vm_start_status is defined and __vm_start_status is changed
-        - redhat_user is defined
-        - redhat_user|length > 0
-        - redhat_pass is defined
-        - redhat_pass|length > 0
-        - tags is defined
-        - "'rhel' in tags"
-        - "'autosubscribe' in tags"
-
+  
   rescue:
 
     - name: "[ Block Rescue Task ] - Delete VM"
@@ -197,20 +180,22 @@
         force: true
       delegate_to: localhost
 
-- name: Gather facts
-  ansible.builtin.setup:
-    gather_subset: all
-  tags:
-    - grub
-  vars:
-        ansible_ssh_user: "{{ cloud_init_user }}"
-        ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
-  when:
-    - tags is defined
-    - ("'autosubscribe' in tags") or ("'autosubscribe' not in tags" and "'rhel8' not in tags")
-
 - name: Post provision basic tasks
   block:
+
+    - name: "[ Block Task ] - Register RHEL hosts to Red Hat using the raw module and truncate sudo log"
+      ansible.builtin.raw: |
+        {{ lookup('template','subscribe.j2') }}
+      failed_when: false
+      when:
+        - __vm_start_status is defined and __vm_start_status is changed
+        - redhat_user is defined
+        - redhat_user|length > 0
+        - redhat_pass is defined
+        - redhat_pass|length > 0
+        - tags is defined
+        - "'rhel' in tags"
+        - "'autosubscribe' in tags"
 
     - name: Install baseline packages
       ansible.builtin.package:
@@ -218,10 +203,6 @@
           - firewalld
           - glibc-langpack-en
         state: present
-      become: true
-      when:
-        - tags is defined
-        - "'autosubscribe' in tags"
 
     - name: Fix grub timeout
       ansible.builtin.lineinfile:
@@ -229,12 +210,6 @@
         regexp: '^GRUB_TIMEOUT='
         line: 'GRUB_TIMEOUT=8'
       register: __grub_results
-      become: true
-      when:
-        - tags is defined
-        - ("'autosubscribe' in tags") or ("'autosubscribe' not in tags" and "'rhel8' not in tags")
-      tags:
-        - grub
 
     - name: Remove console params for proxmox  
       ansible.builtin.shell: |
@@ -242,16 +217,15 @@
         grubby --update-kernel=ALL --remove-args='console=tty0 console=ttyS0,115200n8'
       when: 
         - __grub_results is changed
-      become: true
-      tags:
-        - grub
 
   vars:
     ansible_ssh_user: "{{ cloud_init_user }}"
     ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
+  become: true
   when:
-    - ansible_distribution|lower == 'redhat'
-    - ansible_distribution_major_version|int >= 8
+    - tags is defined
+    - "'rhel' in tags"
+    - "'autosubscribe' in tags"
 
 - name: Cleanup when needed
   block:
