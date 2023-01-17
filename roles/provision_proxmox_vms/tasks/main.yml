@@ -205,6 +205,9 @@
   vars:
         ansible_ssh_user: "{{ cloud_init_user }}"
         ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
+  when:
+    - tags is defined
+    - ("'autosubscribe' in tags") or ("'autosubscribe' not in tags" and "'rhel8' not in tags")
 
 - name: Post provision basic tasks
   block:
@@ -227,6 +230,9 @@
         line: 'GRUB_TIMEOUT=8'
       register: __grub_results
       become: true
+      when:
+        - tags is defined
+        - ("'autosubscribe' in tags") or ("'autosubscribe' not in tags" and "'rhel8' not in tags")
       tags:
         - grub
 
@@ -235,7 +241,7 @@
         grub2-mkconfig -o /boot/grub2/grub.cfg
         grubby --update-kernel=ALL --remove-args='console=tty0 console=ttyS0,115200n8'
       when: 
-        - __grub_results is succeeded 
+        - __grub_results is changed
       become: true
       tags:
         - grub
