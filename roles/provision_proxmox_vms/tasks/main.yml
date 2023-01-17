@@ -156,25 +156,19 @@
         search_regex: OpenSSH
         delay: 20
       connection: local
-      when:
-        - __vm_start_status is defined and __vm_start_status is changed
-        - redhat_user is defined
-        - redhat_user|length > 0
-        - redhat_pass is defined
-        - redhat_pass|length > 0
-        - tags is defined
-        - "'rhel' in tags"
-        - "'autosubscribe' in tags"
+      # when:
+      #   - __vm_start_status is defined and __vm_start_status is changed
+      #   - redhat_user is defined
+      #   - redhat_user|length > 0
+      #   - redhat_pass is defined
+      #   - redhat_pass|length > 0
+      #   - tags is defined
+      #   - "'rhel' in tags"
+      #   - "'autosubscribe' in tags"
 
     - name: "[ Block Task ] - Register RHEL hosts to Red Hat using the raw module and truncate sudo log"
       ansible.builtin.raw: |
-        subscription-manager register --username "{{ redhat_user }}" --password "{{ redhat_pass }}" && \
-        truncate -s 0 /var/log/secure && \
-        major_version=$(rpm -q --queryformat '%{RELEASE}' rpm | grep -o [[:digit:]]*\$) && \
-        if [ ${major_version} == '8' ];then
-        dnf install python3 -y
-        fi
-
+        {{ lookup('template','subscribe.j2') }}
       vars:
         ansible_ssh_user: "{{ cloud_init_user }}"
         ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
@@ -202,6 +196,50 @@
         state: absent
         force: true
       delegate_to: localhost
+
+- name: Gather facts
+  ansible.builtin.setup:
+    gather_subset: all
+  tags:
+    - grub
+
+- name: Post provision basic tasks
+  block:
+
+    - name: Install baseline packages
+      ansible.builtin.package:
+        name: 
+          - firewalld
+          - glibc-langpack-en
+        state: present
+      become: true
+      when:
+        - tags is defined
+        - "'autosubscribe' in tags"
+
+    - name: Fix grub timeout
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT='
+        line: 'GRUB_TIMEOUT=8'
+      register: __grub_results
+      become: true
+      tags:
+        - grub
+
+    - name: Remove console params for proxmox  
+      ansible.builtin.shell: |
+        grub2-mkconfig -o /boot/grub2/grub.cfg
+        grubby --update-kernel=ALL --remove-args='console=tty0 console=ttyS0,115200n8'
+      when: 
+        - __grub_results is succeeded 
+      become: true
+      tags:
+        - grub
+
+  when:
+    - ansible_distribution|lower == 'redhat'
+    - ansible_distribution_major_version|int >= 8
 
 - name: Cleanup when needed
   block:

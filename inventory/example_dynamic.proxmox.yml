@@ -1,45 +1,29 @@
-## THIS IS AN EXAMPLE DYNAMIC INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
-## USED AT YOUR DISCRETION. YMMV
-## SEE: https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_inventory.html
-##
-## THE FILE NAME MUST HAVE .proxmox.yml or .proxmox.yaml IN THE NAME
-## EXAMPLE:
-## my.proxmox.yml < - acceptable
-## dynamic.proxmox.yaml < - acceptable
-## foo.proxmox.yml < - acceptable
-## proxmoxfoo.yml < - unacceptable
-## fooproxmox.yml < - unacceptable
-##
-### UNCOMMENT BELOW THIS LINE
 # ---
 # plugin: community.general.proxmox
 # validate_certs: false
-# url: "https://{{ lookup('env','PROXMOX_HOST') }}:8006"
+# url: "https://proxmox3.example.com:8006"
 # user: "{{ lookup('env','PROXMOX_USER') }}"
 # password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
+# cache: no
+# cache_timeout: 1
 # want_proxmox_nodes_ansible_host: false
-# want_facts: 'true'
-##############################
-###   THE PREFIX IS UNNEEDED FOR ME, BUT IN YOUR USE CASE
-###   YOU MAY WANT TO APPLY ONE. USING IT WILL CREATE A
-###   NAME WITH THE PREFIX.  ALL DYNAMICALLY FOUND GROUPS
-###   GET PREPENDED WITH IT.
-##############################
+# want_facts: true
 # keyed_groups:
 #    - key: proxmox_tags_parsed
-#      prefix: foo
-
-##############################
-###   YOU CAN CREATE GROUPS BASED ON VM TAGS WITH THIS
-###   INVENTORY
-##############################
 # groups:
-#     rhel9: "'rhel9' in (proxmox_tags_parsed|list)"
-#     rhel8: "'rhel8' in (proxmox_tags_parsed|list)"
-#     rhel7: "'rhel7' in (proxmox_tags_parsed|list)"
-#     rhelservers: "'rhel' in (proxmox_tags_parsed|list)"
+#     aap_servers: "'aap' in (proxmox_tags_parsed|list)"
+#     ansible_servers: "'ansible' in (proxmox_tags_parsed|list)"
+#     controller_servers: "'controller' in (proxmox_tags_parsed|list)"
+#     dns_servers: "'dns' in (proxmox_tags_parsed|list)"
+#     rhel7_servers: "'rhel7' in (proxmox_tags_parsed|list)"
+#     rhel8_servers: "'rhel8' in (proxmox_tags_parsed|list)"
+#     rhel9_servers: "'rhel9' in (proxmox_tags_parsed|list)"
+#     rhel_servers: "'rhel' in (proxmox_tags_parsed|list)"
+#     satellite_servers: "'satellite' in (proxmox_tags_parsed|list)"
 # compose:
-#     ansible_port: 22
+#     ansible_ssh_private_key_file: '~/.ssh/id_rsa_proxmox'
+#     ansible_host: proxmox_agent_interfaces[1].ip-addresses[0]|ansible.utils.ipaddr('address')
 #     ansible_port: ansible_host: proxmox_agent_interfaces[1].ip-addresses[0]|ansible.netcommon.ipaddr('address')
-#     my_special_var1: "'foobar'"
-#     my_special_var2: "'barfoo'"
+#     onefish: "'redfish'"
+#     twofish: "'bluefish'"
+#     greeneggs: "'ham'"
