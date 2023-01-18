@@ -204,8 +204,7 @@
 
     - name: Install baseline packages
       ansible.builtin.package:
-        name: 
-          - "{{ 'firewalld' if 'rhel7' in tags else 'firewalld,glibc-langpack-en' }}"
+        name: "{{ 'firewalld' if 'rhel7' in tags else 'firewalld,glibc-langpack-en' }}"
         state: present
       notify: 
         - firewalld gt rhel7
