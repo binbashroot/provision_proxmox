@@ -180,6 +180,9 @@
         force: true
       delegate_to: localhost
 
+- debug:
+    var: tags
+
 - name: Post provision basic tasks
   block:
 
