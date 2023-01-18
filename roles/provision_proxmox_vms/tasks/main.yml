@@ -197,27 +197,15 @@
         - redhat_user|length > 0
         - redhat_pass is defined
         - redhat_pass|length > 0
-        - tags is defined
-        - "'rhel' in tags"
-        - "'autosubscribe' in tags"
 
     - name: Grab facts
       ansible.builtin.setup:
         gather_subset: all
 
-    - debug:
-        var: ansible_distribution_major_version
-      when: ansible_distribution_major_version is defined
-
     - name: Install baseline packages
       ansible.builtin.package:
-        name: 
-           - firewalld
-           - glibc-langpack-en
+        name: "{{ 'firewalld' if rhel7 in tags else 'firewalld,glibc-langpack-en' }}"
         state: present
-      when:
-        - "rhel7' not in tags"
-        - "'autosubscribe' in tags"
       notify: 
         - firewalld gt rhel7
         - firewalld eq rhel7
@@ -242,8 +230,9 @@
   become: true
   when:
     - tags is defined
-    - "'autosubscribe' in tags"
     - "'rhel' in tags"
+    - "'autosubscribe' in tags" 
+    - "'buildtest' not in tags"
 
 - name: Cleanup when needed
   block:
