@@ -1,7 +1,7 @@
 # ---
 # plugin: community.general.proxmox
 # validate_certs: false
-# url: "https://proxmox3.example.com:8006"
+# url: "https://proxmox3.example.com:8006" <- Use your proxmox node name here
 # user: "{{ lookup('env','PROXMOX_USER') }}"
 # password: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 # cache: no
@@ -24,6 +24,6 @@
 #     ansible_ssh_private_key_file: '~/.ssh/id_rsa_proxmox'
 #     ansible_host: proxmox_agent_interfaces[1].ip-addresses[0]|ansible.utils.ipaddr('address')
 #     ansible_port: ansible_host: proxmox_agent_interfaces[1].ip-addresses[0]|ansible.netcommon.ipaddr('address')
-#     onefish: "'redfish'"
-#     twofish: "'bluefish'"
-#     greeneggs: "'ham'"
+#     onefish: "'redfish'"  <- This creates a hostvar called onefish with a value of redfish
+#     twofish: "'bluefish'"  <- This creates a hostvar called twofish with a value of bluefish
+#     greeneggs: "'ham'" <- This creates a hostvar called greeneggs with a value of ham
