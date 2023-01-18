@@ -180,9 +180,6 @@
         force: true
       delegate_to: localhost
 
-- debug:
-    var: tags
-
 - name: Post provision basic tasks
   block:
 
@@ -204,7 +201,7 @@
 
     - name: Install baseline packages
       ansible.builtin.package:
-        name: "{{ 'firewalld' if rhel7 in tags else 'firewalld,glibc-langpack-en' }}"
+        name: "{{ 'firewalld' if 'rhel7' in tags else 'firewalld,glibc-langpack-en' }}"
         state: present
       notify: 
         - firewalld gt rhel7
