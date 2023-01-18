@@ -201,14 +201,19 @@
     - name: Grab facts
       ansible.builtin.setup:
         gather_subset: all
-      when:
-        - "'autosubscribe' in tags"
+
+    - debug:
+        var: ansible_distribution_major_version
+      when: ansible_distribution_major_version is defined
 
     - name: Install baseline packages
       ansible.builtin.package:
-        name: "{{ 'firewalld,glibc-langpack-en' if 'rhel7' not in tags else 'firewalld' }}"
+        name: 
+           - firewalld
+           - glibc-langpack-en
         state: present
       when:
+        - "rhel7' not in tags"
         - "'autosubscribe' in tags"
       notify: 
         - firewalld gt rhel7
