@@ -187,6 +187,7 @@
       ansible.builtin.raw: |
         {{ lookup('template','subscribe.j2') }}
       failed_when: false
+      register: foo
       when:
         - __vm_start_status is defined and __vm_start_status is changed
         - redhat_user is defined
@@ -197,12 +198,18 @@
         - "'rhel' in tags"
         - "'autosubscribe' in tags"
 
+    - name: Grab facts
+      ansible.builtin.setup:
+        gather_subset: all
+
     - name: Install baseline packages
       ansible.builtin.package:
         name: 
-          - firewalld
-          - glibc-langpack-en
+          - "{{ 'firewalld' if 'rhel7' in tags else 'firewalld,glibc-langpack-en' }}"
         state: present
+      notify: 
+        - firewalld gt rhel7
+        - firewalld eq rhel7
 
     - name: Fix grub timeout
       ansible.builtin.lineinfile:
