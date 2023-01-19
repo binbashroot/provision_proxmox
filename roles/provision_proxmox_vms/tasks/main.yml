@@ -223,12 +223,6 @@
       vars:
         ansible_ssh_user: "{{ cloud_init_user }}"
         ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
-      become: true
-      when:
-        - tags is defined
-        - "'rhel' in tags"
-        - "'autosubscribe' in tags" 
-        - "'buildtest' not in tags"
 
   rescue:
 
@@ -242,6 +236,14 @@
         state: absent
         force: true
       delegate_to: localhost
+
+  become: true
+  when:
+    - tags is defined
+    - "'rhel' in tags"
+    - "'autosubscribe' in tags" 
+    - "'buildtest' not in tags"
+
 
 
 - name: Cleanup when needed
