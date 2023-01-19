@@ -220,18 +220,17 @@
         grubby --update-kernel=ALL --remove-args='console=tty0 console=ttyS0,115200n8'
       when: 
         - __grub_results is changed
+      vars:
+        ansible_ssh_user: "{{ cloud_init_user }}"
+        ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
+      become: true
+      when:
+        - tags is defined
+        - "'rhel' in tags"
+        - "'autosubscribe' in tags" 
+        - "'buildtest' not in tags"
 
-  vars:
-    ansible_ssh_user: "{{ cloud_init_user }}"
-    ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
-  become: true
-  when:
-    - tags is defined
-    - "'rhel' in tags"
-    - "'autosubscribe' in tags" 
-    - "'buildtest' not in tags"
-
-   rescue:
+  rescue:
 
     - name: "[ Block Rescue Task ] - Delete VM"
       community.general.proxmox_kvm:
