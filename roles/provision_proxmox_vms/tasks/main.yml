@@ -87,13 +87,13 @@
     - name: "[ Block Task ] - Import the disk to Proxmox"
       ansible.builtin.shell: |
           /usr/sbin/qm set {{ item['vmid'] }} --delete virtio0
-          /usr/sbin/qm set {{ item['vmid'] }} --delete unused0
-          /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_path }}/{{ image_to_use }} {{ proxmox_storage|default('local-lvm') }}
-          /usr/sbin/qm set {{ item['vmid'] }} --{{ bootdisk|default('scsi0') }} {{ proxmox_storage|default('local-lvm') }}:vm-{{ item['vmid'] }}-disk-0
-          {% if add_space is defined %}qm resize {{ item['vmid'] }} {{ bootdisk|default('scsi0') }} +{{ add_space }}G{% endif %}
-          {% if disk2 is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi1 {{ disk2 }}{% endif %}
-          {% if disk3 is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi2 {{ disk3 }}{% endif %}
-          {% if disk4 is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi3 {{ disk4 }}{% endif %}
+          /usr/sbin/qm set {{ item['vmid'] }} --delete unused0 
+          /usr/sbin/qm importdisk {{ item['vmid'] }} {{ qcow_image_path }}/{{ image_to_use }} {{ proxmox_storage|default('local-lvm') }} 
+          /usr/sbin/qm set {{ item['vmid'] }} --{{ bootdisk|default('scsi0') }} {{ proxmox_storage|default('local-lvm') }}:vm-{{ item['vmid'] }}-disk-0 
+          {% if add_space is defined %}/usr/sbin/qm resize {{ item['vmid'] }} {{ bootdisk|default('scsi0') }} +{{ add_space }}G{% endif %} 
+          {% if disk2 is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi1 {{ disk2 }}{% endif %} 
+          {% if disk3 is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi2 {{ disk3 }}{% endif %} 
+          {% if disk4 is defined %}/usr/sbin/qm set {{ item['vmid'] }} --scsi3 {{ disk4 }}{% endif %} 
 
       failed_when: false
       delegate_to: "{{ proxmox_api_host }}"
