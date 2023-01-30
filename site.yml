@@ -21,6 +21,7 @@
           - proxmox_api_user|length > 0
           - proxmox_api_pass|length > 0
         msg: "'my_param' must be between 0 and 100"
+      run_once: True
       tags:
         - always
   roles:
