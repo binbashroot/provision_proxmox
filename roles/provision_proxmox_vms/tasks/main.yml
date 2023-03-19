@@ -156,16 +156,6 @@
         search_regex: OpenSSH
         delay: 20
       connection: local
-      # when:
-      #   - __vm_start_status is defined and __vm_start_status is changed
-      #   - redhat_user is defined
-      #   - redhat_user|length > 0
-      #   - redhat_pass is defined
-      #   - redhat_pass|length > 0
-      #   - tags is defined
-      #   - "'rhel' in tags"
-      #   - "'autosubscribe' in tags"
-
   
   rescue:
 
@@ -195,26 +185,28 @@
         - redhat_pass is defined
         - redhat_pass|length > 0
 
-    - name: Grab facts
+    - name: "[ Block Task ] - Grab facts"
       ansible.builtin.setup:
         gather_subset: all
 
-    - name: Install baseline packages
+    - name: "[ Block Task ] - Install baseline packages"
       ansible.builtin.package:
         name: "{{ 'firewalld' if 'rhel7' in tags else 'firewalld,glibc-langpack-en' }}"
         state: present
+      retries: 5
+      delay: 5
       notify: 
         - firewalld gt rhel7
         - firewalld eq rhel7
 
-    - name: Fix grub timeout
+    - name: "[ Block Task ] - Fix grub timeout"
       ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_TIMEOUT='
         line: 'GRUB_TIMEOUT=8'
       register: __grub_results
 
-    - name: Remove console params for proxmox  
+    - name: "[ Block Task ] - Remove console params for proxmox"
       ansible.builtin.shell: |
         grub2-mkconfig -o /boot/grub2/grub.cfg
         grubby --update-kernel=ALL --remove-args='console=tty0 console=ttyS0,115200n8'
@@ -244,12 +236,10 @@
     - "'autosubscribe' in tags" 
     - "'buildtest' not in tags"
 
-
-
 - name: Cleanup when needed
   block:
 
-    - name: "[ Block Rescue Task ] - Unsubscribe from Red Hat subscriptions"
+    - name: "[ Block Clean Up Task ] - Unsubscribe from Red Hat subscriptions"
       community.general.redhat_subscription:
         state: absent
         username: "{{ redhat_user }}"
@@ -264,7 +254,7 @@
         - redhat_pass is defined
         - redhat_user is defined
 
-    - name: "[ Block Rescue Task ] - Delete VM"
+    - name: "[ Block Clean Up Task ] - Delete VM"
       community.general.proxmox_kvm:
         api_host: "{{ proxmox_api_host }}"
         api_user: "{{ proxmox_api_user }}"
