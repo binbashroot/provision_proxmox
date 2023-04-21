@@ -11,3 +11,4 @@ images/
 !inventory/
 inventory/*
 !inventory/example*.yml
+*.swp
