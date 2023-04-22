@@ -214,7 +214,7 @@
         - inventory_hostname in item['item']
         - item['vmid']
 
-    - name: "[ Block Task ] - Register RHEL Wait 300 seconds for port 22 to become open and contain OpenSSH"
+    - name: "[ Block Task ] - Wait 300 seconds for port 22 to become open and contain OpenSSH"
       ansible.builtin.wait_for:
         port: 22
         host: '{{ (ansible_ssh_host | default(ansible_host)) | default(inventory_hostname) }}'
