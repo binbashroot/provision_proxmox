@@ -30,10 +30,8 @@
   ansible.builtin.stat:
     path: "{{ qcow_image_path }}/{{ image_to_use }}"
   register: __qcow_check
-  vars:
-    ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-    ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
   delegate_to: "{{ proxmox_node }}"
+  run_once: true
 
 - name: Assert that qcow files exist on proxmox server
   ansible.builtin.assert:
@@ -95,9 +93,6 @@
         state: absent
         vmid: "{{ vmid }}"
       delegate_to: localhost
-      vars:
-        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-        ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
       loop: "{{ __proxmox_results['results'] }}"
       loop_control:
         pause: 1
@@ -118,9 +113,6 @@
         storage: "{{ proxmox_storage|default('local-lvm') }}"
         vmid: "{{ vmid }}"
       delegate_to: localhost
-      vars:
-        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-        ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
       loop: "{{ __proxmox_results['results'] }}"
       loop_control:
         pause: 1
@@ -139,9 +131,6 @@
         state: resized
         vmid: "{{ vmid }}"
       delegate_to: localhost
-      vars:
-        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-        ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
       loop: "{{ __proxmox_results['results'] }}"
       loop_control:
         pause: 1
@@ -162,9 +151,6 @@
         state: present
         vmid: "{{ vmid }}"
       delegate_to: localhost
-      vars:
-        ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
-        ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
       loop: "{{ __proxmox_results['results'] | product(hostvars[inventory_hostname] | regex_findall('scsi[1-4]')) | list }}"
       loop_control:
         pause: 1
@@ -277,9 +263,6 @@
         grubby --update-kernel=ALL --remove-args='console=tty0 console=ttyS0,115200n8'
       when: 
         - __grub_results is changed
-      vars:
-        ansible_ssh_user: "{{ cloud_init_user }}"
-        ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
 
   rescue:
 
@@ -304,20 +287,22 @@
 - name: Cleanup when needed
   block:
 
-    - name: "[ Block Clean Up Task ] - Unsubscribe from Red Hat subscriptions"
-      community.general.redhat_subscription:
-        state: absent
-        username: "{{ redhat_user }}"
-        password: "{{ redhat_pass }}"
-      vars:
-        ansible_ssh_user: "{{ cloud_init_user }}"
-        ansible_ssh_private_key_file: "{{ cloud_init_private_key_file }}"
-      become: true
-      failed_when: false
-      when:
-        - clean is defined
-        - redhat_pass is defined
-        - redhat_user is defined
+#     - name: "[ Block Clean Up Task ] - Unsubscribe from Red Hat subscriptions"
+#       community.general.redhat_subscription:
+#         rhsm_baseurl: 'https://satellite.example.com/rhsm'
+# #       server_hostname: satellite.example.com
+# #       server_insecure: true
+#         state: absent
+#         username: "{{ redhat_user }}"
+#         password: "{{ redhat_pass }}"
+# #       username: admin
+# #       password: cms4u2eat
+#       become: true
+#       failed_when: false
+#       when:
+#         - clean is defined
+#         - redhat_pass is defined
+#         - redhat_user is defined
 
     - name: "[ Block Clean Up Task ] - Delete VM"
       community.general.proxmox_kvm:
