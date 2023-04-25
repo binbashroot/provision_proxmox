@@ -33,6 +33,7 @@
   delegate_to: "{{ proxmox_node }}"
   vars:
     ansible_user: "{{ proxmox_username }}"
+    ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
   run_once: true
 
 - name: Assert that qcow files exist on proxmox server
