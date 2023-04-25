@@ -234,6 +234,7 @@
       register: foo
       vars: 
         ansible_user: rromero
+        ansible_ssh_private_key_file: "{{ tower.filename.proxmox_admin_key }}"
       when:
         - __vm_start_status is defined and __vm_start_status is changed
         - redhat_user is defined
