@@ -31,6 +31,8 @@
     path: "{{ qcow_image_path }}/{{ image_to_use }}"
   register: __qcow_check
   delegate_to: "{{ proxmox_node }}"
+  vars:
+    ansible_user: "{{ proxmox_username }}"
   run_once: true
 
 - name: Assert that qcow files exist on proxmox server
