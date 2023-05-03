@@ -71,12 +71,13 @@
         ostype: "{{ ostype | default('l26') }}"
         searchdomains: "{{ domain | default(omit) }}"
         scsihw: virtio-scsi-pci
+        sockets: "{{ sockets | default('1') }}"
         sshkeys: "{{ cloud_init_public_key }}"
         tags: "{{ tags | list }}"
         validate_certs: false
         virtio:
           virtio0: "{{ proxmox_storage | default('local-lvm') }}:{{ pmsize | default('2') }}"
-        vcpus: "{{ vcpus | default('1') }}"
+        vcpus: "{{ (cores|int * sockets|int) | default('1') }}"
         vmid: "{{ vmid | default(omit) }}"
       loop: "{{ ansible_play_hosts }}"
       loop_control:
