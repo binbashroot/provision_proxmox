@@ -77,7 +77,7 @@
         validate_certs: false
         virtio:
           virtio0: "{{ proxmox_storage | default('local-lvm') }}:{{ pmsize | default('2') }}"
-        vcpus: "{{ (cores|int * sockets|int) | default('1') }}"
+        vcpus: "{{ (cores|default('1') | int * sockets | default('1') | int) | default('1') }}"
         vmid: "{{ vmid | default(omit) }}"
       loop: "{{ ansible_play_hosts }}"
       loop_control:
