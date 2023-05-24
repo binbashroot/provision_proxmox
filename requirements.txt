@@ -1,6 +1,6 @@
 # These are the pip requirements for this project
 # passlib is required if Ansible host is using OSX
 proxmoxer==1.3.1
-requests==2.28.1
+requests==2.31.0
 passlib==1.7.4
 netaddr==0.8.0
