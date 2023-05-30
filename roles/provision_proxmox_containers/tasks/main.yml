@@ -2,14 +2,13 @@
 - name: Get the template if ostemplate var does not end with tar.gz
   block:
 
-    - name: Get latest name for ostemplate variable
-      ansible.builtin.shell: |
-        pveam available --section system |grep {{ ostemplate }} | tail -1
+    - name: Get name for ostemplate variable
+      ansible.builtin.shell: 'pveam available --section system | grep {{ ostemplate }} | tail -1'
       register: __latest_os_template
-      changed_when: false
       vars:
         ansible_ssh_user: "{{ proxmox_admin_ssh_user }}"
         ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
+      changed_when: __latest_os_template['rc'] != 0
 
     - name: Download the latest template for the request ostemplate variable
       ansible.builtin.shell: |

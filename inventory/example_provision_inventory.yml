@@ -1,123 +1,101 @@
-# THIS IS AN EXAMPLE YAML ANSIBLE INVENTORY FILE THAT CAN BE UNCOMMENTED, MODIFIED, AND
-# USED AT YOUR DISCRETION. YMMV
-# 
-# TAGS are using to determine the OS of the host to be provisioned. 
-# RHEL hosts with an tag of "autosubscribe" will also attempt to register to RH with subscription-manager
-# A host must have a valid tag that matches a choice in the qcow_images variable in the defaults/main.yml file
-#
 # ---
+# all:
+#   vars:
+#     ansible_ssh_private_key_file: ~/.ssh/id_rsa_proxmox
+#     domain: example.com
+#     proxmox_api_host: proxmox3.example.com
+#     proxmox_node: proxmox3
+#     satellite_params:
+#       baseurl: 'satellite.{{ domain }}'
+#       username: "{{ lookup('env','SATELLITE_USERNAME') }}"
+#       password: "{{ lookup('env','SATELLITE_PASSWORD') }}"
+#       organization: CMS_Incorporated
+#       location: TPA
+#     virtual_machine_nameservers:
+#         - 192.168.81.6
+#         - 192.168.81.9
+
+#     qcow_images:
+#       - name: fedora
+#         qcow_file: Fedora-Cloud-Base-36-1.5.x86_64.qcow2
+#       - name: rhel7
+#         qcow_file: rhel-server-7.9-update-12-x86_64-kvm.qcow2
+#       - name: rhel8
+#         qcow_file: rhel-8.6-x86_64-kvm.qcow2
+#       - name: rhel9
+#         qcow_file: rhel-baseos-9.1-x86_64-kvm.qcow2
+#       - name: ubuntu18
+#         qcow_file: bionic-server-cloudimg-amd64.qcow2
+#       - name: ubuntu20
+#         qcow_file: focal-server-cloudimg-amd64.qcow2
+
+# rhcsa_lab:
+#    hosts:
+#      servera.example.com:
+
+# satellite_servers:
+#    hosts:
+#      satellite.example.com:
+
 # virtual_machines:
-##APPLY GROUP VARS HERE
-# vars:
-#   redhat_user: "{{ lookup('env','REDHAT_USER') }}"
-#   redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
-#   virtual_machine_nameservers:
-#       - 192.168.1.1
-#       - 192.168.2.1
+# # cloud-init eth0
+#   vars:
+#     onboot: true
+
 #   hosts:
-#     ansible:
-#         add_space: 40G    <-- Adds additional disk space during provisioning.
-#         ansible_host: 10.0.1.100
+#     satellite.example.com:
+#         add_space: 290
+#         ansible_host: 192.168.81.120
+#         cores: 8
+#         gateway: 192.168.81.1
+#         hotplug: 'network,disk'
 #         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 10.0.1.1
-#         cores: 1
-#         ram: 2048
-#         onboot: yes       
-# Format for disk is disk location and size
-#         disk2: 'local-lvm:5'
-#         disk3: 'local-lvm:5'
-#         disk4: 'local-lvm:5'
+#         proxmox_storage: dataraid   <--This is the lvm storage name
+#         ram: 32768
 #         tags:
-#           - autosubscribe  
-#           - rhel9
+#           - satellite
 #           - rhel
-#           - controller
-#           - podman
-#
-#     satellite:
-#         ansible_host: 10.0.1.101
+#           - rhel8
+#           - autosubscribe
+#         vmid: 3000
+
+#     servera.example.com:
+#         ansible_host: 192.168.81.121
+#         cores: 2
+#         gateway: 192.168.81.1
+#         hotplug: 'network,disk'
 #         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 10.0.1.1
-#         cores: 1
-#         onboot: yes       
+#         ram: 2048
+#         tags:
+#           - rhel9
+#           - autosubscribe
+#           - rhel
+#         vmid: 3001
+#         scsi1: local-lvm:5   <--This is the lvm storage name and size to use
+#         scsi2: local-lvm:15   <--This is the lvm storage name and size to use
+
+#     serverb.example.com:
+#         ansible_host: 192.168.81.122
+#         cores: 2
+#         gateway: 192.168.81.1
+#         hotplug: 'network,disk'
+#         ipaddress: "{{ ansible_host }}/24"
 #         ram: 2048
 #         tags:
 #           - rhel8
 #           - rhel
-#           - server
-#           - dev
-#
-#     servera:
-#         ansible_host: 10.0.1.102
+#           - autosubscribe
+#         vmid: 3002
+
+#     serverc.example.com:
+#         ansible_host: 192.168.81.123
+#         cores: 2
+#         gateway: 192.168.81.1
+#         hotplug: 'network,disk'
 #         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 10.0.1.1
-#         cores: 1
-#         onboot: yes       
-#         ram: 2048     
-#         tags:
-#             - ubuntu
-#             - ubuntu20
-#             - nginx
-#
-#     serverb:
-#         ansible_host: 10.0.1.103
-#         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 10.0.1.1
-#         cores: 1
-#         onboot: yes       
-#         ram: 2048     
-#         tags:
-#             - rhel
-#             - rhel8
-#
-#     serverd:
-#         ansible_host: 10.0.1.104
-#         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 10.0.1.1
-#         cores: 1
-#         onboot: yes       
-#         ram: 2048     
-#         tags:
-#             - rhel
-#             - splunk
-#             - rhel8
-#
-#     servere:
-#         ansible_host: 10.0.1.105
-#         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 10.0.1.1
-#         cores: 1
-#         onboot: yes       
-#         ram: 2048     
-#         tags:
-#             - rhel
-#             - rhel7
-#
-# containers:
-#   hosts:
-#     centos8:
-#         ansible_host: 192.168.254.225
-#         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 192.168.254.254
-#         cores: 1
 #         ram: 2048
-#         ostemplate: centos-8-default_20201210_amd64.tar.xz
-#         vmid: 1000
-#
-#     fedora:
-#         ansible_host: 192.168.254.226
-#         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 192.168.254.254
-#         cores: 1
-#         ram: 2048
-#         ostemplate: fedora-36-default_20220622_amd64.tar.xz
-#         vmid: 1001
-#
-#     ubuntu:
-#         ansible_host: 192.168.254.227
-#         ipaddress: "{{ ansible_host }}/24"
-#         gateway: 192.168.254.254
-#         cores: 1
-#         ram: 2048
-#         ostemplate: ubuntu-22.04-standard_22.04-1_amd64.tar.zst
-#         vmid: 1002
+#         tags:
+#           - rhel9
+#           - autosubscribe
+#           - rhel
+#         vmid: 3003
