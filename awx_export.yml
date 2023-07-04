@@ -9,3 +9,4 @@
         credentials: 'all'
         credential_types: 'all'
         job_templates: 'all'
+        validate_certs: false 
