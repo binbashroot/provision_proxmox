@@ -6,6 +6,6 @@
   pre_tasks:
     - name: Ensure variables exist before continuinng
       awx.awx.export:
-        credential: 'all'
+        credentials: 'all'
         credential_types: 'all'
         job_templates: 'all'
