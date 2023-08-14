@@ -288,6 +288,8 @@
       delegate_to: localhost
 
 - name: Cleanup when needed
+  tags:
+    - never
   block:
 
 #     - name: "[ Block Clean Up Task ] - Unsubscribe from Red Hat subscriptions"
@@ -321,5 +323,3 @@
       when: inventory_hostname in item
       failed_when: false
 
-  tags:
-    - never
