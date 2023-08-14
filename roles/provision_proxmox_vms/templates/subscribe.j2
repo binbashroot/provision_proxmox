@@ -7,7 +7,7 @@ update-alternatives --remove python /usr/libexec/no-python;
 alternatives --set python /usr/bin/python3.9;
 {% endif %}
 curl -k https://{{ satellite_params['baseurl'] }}/pub/bootstrap.py | {% if subscription == 'rhel8' -%}
-/usr/libexec/platform-python{% else %}/usr/bin/python{% endif -%} - -l {{ satellite_params['username'] }} \
+/usr/libexec/platform-python{% else %}/usr/bin/python{% endif %} - -l {{ satellite_params['username'] }} \
 -p {{ satellite_params['password'] }} -s {{ satellite_params['baseurl'] }} \
 -o {{ satellite_params['organization'] }} -L {{ satellite_params['location'] }} \
 -a {{ subscription }}_activation_key_{{ lifecycle|default('prod') }} -g {{ subscription | upper }}_{{ lifecycle|default('PROD') }} --force;
