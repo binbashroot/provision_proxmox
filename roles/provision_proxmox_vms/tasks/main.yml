@@ -224,10 +224,14 @@
         state: absent
         force: true
       delegate_to: localhost
-      when: foobar is defined
-
 
 - name: Post provision basic tasks
+  become: true
+  when:
+    - tags is defined
+    - "'rhel' in tags"
+    - "'autosubscribe' in tags" 
+    - "'buildtest' not in tags"
   block:
 
     - name: "[ Block Task ] - Register RHEL hosts to Red Hat using the raw module and truncate sudo log"
@@ -285,14 +289,6 @@
         state: absent
         force: true
       delegate_to: localhost
-      when: foobar is defined
-
-  become: true
-  when:
-    - tags is defined
-    - "'rhel' in tags"
-    - "'autosubscribe' in tags" 
-    - "'buildtest' not in tags"
 
 - name: Cleanup when needed
   block:
