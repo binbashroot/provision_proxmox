@@ -285,6 +285,7 @@
         state: absent
         force: true
       delegate_to: localhost
+      when: foobar is defined
 
   become: true
   when:
