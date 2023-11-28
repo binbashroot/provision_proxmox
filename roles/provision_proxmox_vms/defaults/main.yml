@@ -1,21 +1,15 @@
 ---
 # defaults file for provision_proxmox_vms
-cloud_init_user: "{{ lookup('env','USER') }}"
-cloud_init_pass: "{{ proxmox_api_pass }}"
-cloud_init_public_key: "{{ lookup('file','~/.ssh/id_rsa_proxmox.pub') }}"
-cloud_init_private_key_file: ~/.ssh/id_rsa_proxmox
+ciuser: "{{ cloud_init_user| default(lookup('env','CLOUD_INIT_USERNAME')) }}"
+cipassword: "{{ cloud_init_password | default(lookup('env','CLOUD_INIT_PASSWORD')) }}"
+cipublickey: "{{ cloud_init_public_key | default(lookup('env','CLOUD_INIT_PUBLIC_KEY')) }}"
 
-# domain: example.com
-
-proxmox_admin_key: ~/.ssh/id_proxmox_admin
-proxmox_admin_ssh_user: root
 proxmox_api_host: "{{ lookup('env','PROXMOX_HOST') }}"
 proxmox_api_pass: "{{ lookup('env','PROXMOX_PASSWORD') }}"
 proxmox_api_user: "{{ lookup('env','PROXMOX_USER') }}"
-proxmox_node: proxmox
 
-redhat_user: "{{ lookup('env','REDHAT_USER') }}"
-redhat_pass: "{{ lookup('env','REDHAT_PASS') }}"
+redhat_username: "{{ lookup('env','REDHAT_SSO_USERNAME') }}"
+redhat_password: "{{ lookup('env','REDHAT_SSO_PASSWORD') }}"
 
 qcow_image_path: /opt/qcow_images/images
 
@@ -25,10 +19,10 @@ qcow_images:
     qcow_file: rhel-server-7.9-update-12-x86_64-kvm.qcow2
 
   - name: rhel8
-    qcow_file: rhel-8.6-x86_64-kvm.qcow2
+    qcow_file: rhel-8.8-x86_64-kvm.qcow2
 
   - name: rhel9
-    qcow_file: rhel-baseos-9.0-x86_64-kvm.qcow2
+    qcow_file: rhel-9.2-x86_64-kvm.qcow2
 
   - name: ubuntu18
     qcow_file: bionic-server-cloudimg-amd64.qcow2

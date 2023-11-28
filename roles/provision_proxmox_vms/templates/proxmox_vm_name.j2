@@ -5,7 +5,7 @@
         {{ inventory_hostname + '.local.lan' }}
     {% endif %} 
 {% elif domain is defined %}
-   {% if domain in inventory_hostname %}
+   {% if (inventory_hostname).split('.')|length >= 3 %}
        {{ inventory_hostname }}
    {% else %}
        {{ inventory_hostname + '.' + domain }}

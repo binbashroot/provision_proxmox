@@ -26,22 +26,6 @@
   when:
     - item['name'] in tags
 
-# - name: Verify qcow images path
-#   ansible.builtin.stat:
-#     path: "{{ qcow_image_path }}/{{ image_to_use }}"
-#   register: __qcow_check
-#   delegate_to: "{{ proxmox_node }}"
-#   vars:
-#     ansible_user: "{{ proxmox_username }}"
-#     ansible_ssh_private_key_file: "{{ proxmox_admin_key }}"
-#   run_once: true
-
-# - name: Assert that qcow files exist on proxmox server
-#   ansible.builtin.assert:
-#     that:
-#       - __qcow_check['stat']['exists']
-#     fail_msg: "A defined qcow image is missing"
-
 - name: "[ Block ] - Create virtual machine"
   block:
 
@@ -52,8 +36,8 @@
         api_user: "{{ proxmox_api_user }}"
         api_password: "{{ proxmox_api_pass }}"
         bios: "{{ bios | default('seabios') }}"
-        ciuser: "{{ cloud_init_user }}"
-        cipassword: "{{ cloud_init_pass }}"
+        ciuser: "{{ ciuser }}"
+        cipassword: "{{ cipassword }}"
         cores: "{{ cores | default('1') }}"
         cpu: "{{ cpu_type | default('host') }}"
         hotplug: "{{ hotplug | default('network,cpu,memory,disk') }}"
@@ -73,7 +57,7 @@
         searchdomains: "{{ domain | default(omit) }}"
         scsihw: virtio-scsi-pci
         sockets: "{{ sockets | default('1') }}"
-        sshkeys: "{{ cloud_init_public_key }}"
+        sshkeys: "{{ cipublickey }}"
         tags: "{{ tags | list }}"
         validate_certs: false
         virtio:
@@ -225,26 +209,92 @@
         force: true
       delegate_to: localhost
 
-- name: Post provision basic tasks
+- name: Subscribe to Red Hat if host has a satellite tag
   become: true
   when:
     - tags is defined
     - "'rhel' in tags"
-    - "'autosubscribe' in tags" 
-    - "'buildtest' not in tags"
+    - "'satellite' in tags"
   block:
 
-    - name: "[ Block Task ] - Register RHEL hosts to Red Hat using the raw module and truncate sudo log"
-      ansible.builtin.raw: |
-        {{ lookup('template', 'subscribe.j2') }}
-      failed_when: false
-      register: foo
-      when:
-        - __vm_start_status is defined and __vm_start_status is changed
-        - redhat_user is defined
-        - redhat_user|length > 0
-        - redhat_pass is defined
-        - redhat_pass|length > 0
+    - name: Join host to Red Hat CDN 
+      community.general.redhat_subscription:
+        state: present
+        username: "{{ redhat_username }}"
+        password: "{{ redhat_password }}"
+        force_register: true
+        auto_attach: true
+      become: true
+      when: 
+        - satellite_username is defined 
+        - satellite_password is defined
+
+  rescue:
+
+    - name: "[ Block Rescue Task ] - Delete VM"
+      community.general.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_pass }}"
+        name: "{{ proxmox_vm_name | trim }}"
+        node: "{{ proxmox_node }}"
+        state: absent
+        force: true
+      become: false
+      delegate_to: localhost  
+
+- name: Join host to local satellite server 
+  become: true
+  when:
+    - tags is defined
+    - "'autosubscribe' in tags" 
+    - "('rhel8' in tags) or ('rhel9' in tags)"
+    - satellite_server is defined
+    - satellite_username is defined 
+    - satellite_password is defined
+    - satellite_environment is defined
+    - "'rhel' in tags"
+    - "'buildtest' not in tags"
+  block:
+    
+    - name: Install katello cert 
+      ansible.builtin.dnf:
+        name: https://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm
+        sslverify: false
+        validate_certs: false
+        disable_gpg_check: true
+        state: present
+
+    - name: Join host to satellite server 
+      community.general.redhat_subscription:
+        state: present
+        username: "{{ satellite_username }}"
+        password: "{{ satellite_password }}"
+        environment: "{{ satellite_environment }}"
+        server_hostname: "{{ satellite_server }}"
+        force_register: true
+      become: true
+
+  rescue:
+
+    - name: "[ Block Rescue Task ] - Delete VM"
+      community.general.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_pass }}"
+        name: "{{ proxmox_vm_name | trim }}"
+        node: "{{ proxmox_node }}"
+        state: absent
+        force: true
+      become: false
+      delegate_to: localhost  
+
+- name: Basic Post Provision
+  become: true
+  when:
+    - tags is defined
+    - "'rhel' in tags" 
+  block:
 
     - name: "[ Block Task ] - Grab facts"
       ansible.builtin.setup:
@@ -252,13 +302,14 @@
 
     - name: "[ Block Task ] - Install baseline packages"
       ansible.builtin.package:
-        name: "{{ 'firewalld' if 'rhel7' in tags else 'firewalld,glibc-langpack-en' }}"
+        name: 
+          - firewalld
+          - glibc-langpack-en
         state: present
       retries: 5
       delay: 5
       notify: 
         - firewalld gt rhel7
-        - firewalld eq rhel7
 
     - name: "[ Block Task ] - Fix grub timeout"
       ansible.builtin.lineinfile:
@@ -285,6 +336,7 @@
         node: "{{ proxmox_node }}"
         state: absent
         force: true
+      become: false
       delegate_to: localhost
 
 - name: Cleanup when needed
@@ -292,22 +344,20 @@
     - never
   block:
 
-#     - name: "[ Block Clean Up Task ] - Unsubscribe from Red Hat subscriptions"
-#       community.general.redhat_subscription:
-#         rhsm_baseurl: 'https://satellite.example.com/rhsm'
-# #       server_hostname: satellite.example.com
-# #       server_insecure: true
-#         state: absent
-#         username: "{{ redhat_user }}"
-#         password: "{{ redhat_pass }}"
-# #       username: admin
-# #       password: cms4u2eat
-#       become: true
-#       failed_when: false
-#       when:
-#         - clean is defined
-#         - redhat_pass is defined
-#         - redhat_user is defined
+    - name: Unregister host from satellite server 
+      community.general.redhat_subscription:
+        state: absent
+        username: "{{ satellite_username }}"
+        password: "{{ satellite_password }}"
+        environment: "{{ satellite_environment }}"
+        server_hostname: "{{ satellite_server }}"
+      become: true
+      when: 
+        - satellite_username is defined 
+        - satellite_password is defined
+        - satellite_environment is defined
+        - satellite_server is defined
+        - clean is defined
 
     - name: "[ Block Clean Up Task ] - Delete VM"
       community.general.proxmox_kvm:
@@ -323,3 +373,4 @@
       when: inventory_hostname in item
       failed_when: false
 
+...
